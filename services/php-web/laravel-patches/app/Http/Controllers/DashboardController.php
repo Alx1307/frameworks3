@@ -39,6 +39,25 @@ class DashboardController extends Controller
     }
 
     /**
+     * Минимальная версия Dashboard (только МКС и JWST)
+     */
+    public function minimal()
+    {
+        // Получаем данные МКС
+        $b = $this->base();
+        $iss = $this->getJson($b.'/last');
+
+        return view('dashboard-minimal', [
+            'iss' => $iss,
+            // Не передаем астрономические данные и CMS для минимальной версии
+            'metrics' => [
+                'iss_speed' => $iss['payload']['velocity'] ?? null,
+                'iss_alt'   => $iss['payload']['altitude'] ?? null,
+            ],
+        ]);
+    }
+
+    /**
      * /api/jwst/feed — серверный прокси/нормализатор JWST картинок.
      * QS:
      *  - source: jpg|suffix|program (default jpg)
