@@ -23,7 +23,6 @@
             overflow-x: hidden;
         }
         
-        /* Звёздное небо */
         .stars {
             position: fixed;
             top: 0;
@@ -45,7 +44,6 @@
             50% { opacity: 1; }
         }
         
-        /* Header */
         .space-header {
             background: rgba(10, 25, 47, 0.9);
             backdrop-filter: blur(10px);
@@ -119,7 +117,6 @@
             width: 80%;
         }
         
-        /* Main content */
         .main-content {
             padding-top: 120px;
             padding-bottom: 100px;
@@ -237,7 +234,6 @@
             line-height: 1.6;
         }
         
-        /* Footer - Упрощённая версия */
         .space-footer {
             background: rgba(2, 12, 27, 0.95);
             backdrop-filter: blur(10px);
@@ -275,7 +271,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Планета анимация */
         .planet {
             position: absolute;
             width: 200px;
@@ -294,7 +289,6 @@
             50% { transform: translateY(-30px) rotate(180deg); }
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
@@ -312,14 +306,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Звёздное небо -->
     <div class="stars" id="stars"></div>
     
-    <!-- Header -->
     <header class="space-header py-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Логотип -->
                 <div class="logo-container">
                     <a href="/" class="text-decoration-none d-flex align-items-center gap-3">
                         <div class="logo-icon">
@@ -329,7 +320,6 @@
                     </a>
                 </div>
                 
-                <!-- Навигация -->
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
                         <a class="nav-link nav-link-space" href="/" style="background: rgba(93, 63, 211, 0.2);">
@@ -342,10 +332,13 @@
                             <i class="fas fa-cogs me-2"></i>CMS
                         </a>
                         <a class="nav-link nav-link-space" href="/dashboard-minimal">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-globe-europe me-2"></i>JWST
                         </a>
-                        <a class="nav-link nav-link-space active" href="/osdr-new">
+                        <a class="nav-link nav-link-space" href="/osdr-new">
                             <i class="fas fa-database me-2"></i>OSDR
+                        </a>
+                        <a class="nav-link nav-link-space active" href="/iss-new">
+                            <i class="fas fa-satellite me-2"></i>МКС
                         </a>
                     </div>
                 </nav>
@@ -353,10 +346,8 @@
         </div>
     </header>
     
-    <!-- Планета для фона -->
     <div class="planet"></div>
     
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="container">
             <section class="hero-section">
@@ -367,13 +358,11 @@
                     Погрузитесь в мир космических данных и исследований.
                 </p>
                 
-                <!-- Кнопка перехода на полный дашборд -->
                 <a href="/dashboard" class="btn dashboard-btn">
                     <i class="fas fa-rocket me-2"></i>Посмотреть исходный сайт
                 </a>
             </section>
             
-            <!-- Карточки функций -->
             <div class="feature-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -411,7 +400,6 @@
         </div>
     </main>
     
-    <!-- Footer - Упрощённый -->
     <footer class="space-footer">
         <div class="container">
             <div class="footer-content">
@@ -428,7 +416,6 @@
     </footer>
 
     <script>
-        // Создание звёздного неба
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -437,23 +424,19 @@
                 const star = document.createElement('div');
                 star.classList.add('star');
                 
-                // Случайный размер
                 const size = Math.random() * 3 + 1;
                 star.style.width = `${size}px`;
                 star.style.height = `${size}px`;
                 
-                // Случайная позиция
                 star.style.left = `${Math.random() * 100}%`;
                 star.style.top = `${Math.random() * 100}%`;
                 
-                // Случайная задержка анимации
                 star.style.animationDelay = `${Math.random() * 5}s`;
                 
                 starsContainer.appendChild(star);
             }
         }
         
-        // Анимация при скролле
         function handleScrollAnimations() {
             const featureCards = document.querySelectorAll('.feature-card');
             const scrollY = window.scrollY;
@@ -470,15 +453,12 @@
             });
         }
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             createStars();
             handleScrollAnimations();
             
-            // Обработка скролла
             window.addEventListener('scroll', handleScrollAnimations);
             
-            // Анимация при наведении на карточки
             const featureCards = document.querySelectorAll('.feature-card');
             featureCards.forEach(card => {
                 card.style.opacity = "0";
@@ -486,12 +466,10 @@
                 card.style.transition = "opacity 0.6s ease, transform 0.6s ease, border-color 0.3s ease, box-shadow 0.3s ease";
             });
             
-            // Запуск анимации карточек после загрузки
             setTimeout(() => {
                 handleScrollAnimations();
             }, 300);
             
-            // Исправление: загрузка Font Awesome для иконок
             if (!document.querySelector('link[href*="font-awesome"]')) {
                 const faLink = document.createElement('link');
                 faLink.rel = 'stylesheet';

@@ -9,6 +9,7 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::get('/dashboard-minimal', [\App\Http\Controllers\DashboardController::class, 'minimal']);
 Route::get('/osdr', [\App\Http\Controllers\OsdrController::class, 'index']);
 Route::get('/osdr-new', [\App\Http\Controllers\OsdrController::class, 'newIndex'])->name('osdr.new');
+Route::get('/iss-new', [\App\Http\Controllers\IssController::class, 'newIndex']);
 
 Route::get('/astronomy', [\App\Http\Controllers\AstroController::class, 'index']);
 Route::get('/cms-admin', [\App\Http\Controllers\CmsController::class, 'admin']);

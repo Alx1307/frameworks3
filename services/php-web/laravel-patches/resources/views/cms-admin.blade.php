@@ -23,7 +23,6 @@
             overflow-x: hidden;
         }
         
-        /* Звёздное небо */
         .stars {
             position: fixed;
             top: 0;
@@ -45,7 +44,6 @@
             50% { opacity: 1; }
         }
         
-        /* Header */
         .space-header {
             background: rgba(10, 25, 47, 0.9);
             backdrop-filter: blur(10px);
@@ -119,7 +117,6 @@
             width: 80%;
         }
         
-        /* Main content */
         .main-content {
             padding-top: 120px;
             padding-bottom: 100px;
@@ -129,25 +126,24 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             background: linear-gradient(90deg, #00d4ff, #5d3fd3);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-align: center;
+            text-align: left;
         }
         
         .page-subtitle {
             color: rgba(255, 255, 255, 0.8);
-            text-align: center;
+            text-align: left;
             margin-bottom: 40px;
             font-size: 1.1rem;
             max-width: 800px;
-            margin-left: auto;
+            margin-left: 0;
             margin-right: auto;
         }
         
-        /* Карточки CMS */
         .cms-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -176,6 +172,7 @@
             font-weight: 600;
             color: var(--neon-blue);
             margin: 0;
+            text-align: left;
         }
         
         .cms-slug {
@@ -185,6 +182,7 @@
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 0.9rem;
+            text-align: left;
         }
         
         .cms-content {
@@ -195,11 +193,13 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             max-height: 300px;
             overflow-y: auto;
+            text-align: left;
         }
         
         .cms-content-preview {
             color: rgba(255, 255, 255, 0.8);
             line-height: 1.6;
+            text-align: left;
         }
         
         .cms-content-preview img {
@@ -216,6 +216,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.6);
+            text-align: left;
         }
         
         .cms-status {
@@ -225,6 +226,7 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
+            text-align: left;
         }
         
         .cms-status-active {
@@ -243,6 +245,7 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            text-align: left;
         }
         
         .btn-cms {
@@ -255,6 +258,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-align: left;
         }
         
         .btn-cms-view {
@@ -281,7 +285,6 @@
             transform: translateY(-2px);
         }
         
-        /* Пустое состояние */
         .cms-empty {
             text-align: center;
             padding: 60px 20px;
@@ -295,13 +298,13 @@
             opacity: 0.5;
         }
         
-        /* Информационная панель */
         .info-panel {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(93, 63, 211, 0.3);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
+            text-align: left;
         }
         
         .info-panel-header {
@@ -311,9 +314,17 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            text-align: left;
         }
         
-        /* Footer */
+        .section-title {
+            color: var(--neon-blue);
+            margin-bottom: 25px;
+            text-align: left;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
         .space-footer {
             background: rgba(2, 12, 27, 0.95);
             backdrop-filter: blur(10px);
@@ -351,7 +362,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Планета анимация */
         .planet {
             position: absolute;
             width: 200px;
@@ -370,7 +380,6 @@
             50% { transform: translateY(-30px) rotate(180deg); }
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -388,19 +397,24 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Звёздное небо -->
     <div class="stars" id="stars"></div>
     
-    <!-- Header -->
     <header class="space-header py-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Логотип -->
                 <div class="logo-container">
                     <a href="/" class="text-decoration-none d-flex align-items-center gap-3">
                         <div class="logo-icon">
@@ -410,7 +424,6 @@
                     </a>
                 </div>
                 
-                <!-- Навигация -->
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
                         <a class="nav-link nav-link-space" href="/">
@@ -419,14 +432,17 @@
                         <a class="nav-link nav-link-space" href="/astronomy">
                             <i class="fas fa-calendar-alt me-2"></i>События
                         </a>
-                        <a class="nav-link nav-link-space" href="/cms-admin">
+                        <a class="nav-link nav-link-space" href="/cms-admin" style="background: rgba(93, 63, 211, 0.2);">
                             <i class="fas fa-cogs me-2"></i>CMS
                         </a>
                         <a class="nav-link nav-link-space" href="/dashboard-minimal">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-globe-europe me-2"></i>JWST
                         </a>
-                        <a class="nav-link nav-link-space active" href="/osdr-new" style="background: rgba(93, 63, 211, 0.2);">
+                        <a class="nav-link nav-link-space" href="/osdr-new">
                             <i class="fas fa-database me-2"></i>OSDR
+                        </a>
+                        <a class="nav-link nav-link-space active" href="/iss-new">
+                            <i class="fas fa-satellite me-2"></i>МКС
                         </a>
                     </div>
                 </nav>
@@ -434,10 +450,8 @@
         </div>
     </header>
     
-    <!-- Планета для фона -->
     <div class="planet"></div>
     
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="container">
             <h1 class="page-title">Управление CMS</h1>
@@ -446,7 +460,6 @@
                 все активные блоки содержимого, которые можно использовать на различных страницах.
             </p>
             
-            <!-- Информационная панель -->
             <div class="info-panel">
                 <div class="info-panel-header">
                     <i class="fas fa-info-circle"></i>
@@ -459,10 +472,9 @@
                 </p>
             </div>
             
-            <!-- Список CMS блоков -->
             <div class="row">
                 <div class="col-12">
-                    <h3 class="mb-4" style="color: var(--neon-blue);">
+                    <h3 class="section-title">
                         <i class="fas fa-th-list me-2"></i>Активные блоки
                         <span class="badge bg-primary ms-2">{{ count($blocks ?? []) }}</span>
                     </h3>
@@ -484,7 +496,6 @@
                             <div class="cms-content">
                                 <div class="cms-content-preview">
                                     @php
-                                        // Безопасный предпросмотр (обрезаем длинный текст)
                                         $preview = strip_tags($block->content);
                                         $preview = strlen($preview) > 300 ? substr($preview, 0, 300) . '...' : $preview;
                                         echo htmlspecialchars($preview);
@@ -531,7 +542,6 @@
                 </div>
             </div>
             
-            <!-- Блок предпросмотра из dashboard -->
             <div class="cms-card mt-5">
                 <div class="cms-card-header">
                     <h4 class="cms-card-title">
@@ -573,7 +583,6 @@
                 </div>
             </div>
             
-            <!-- Техническая информация -->
             <div class="info-panel mt-4">
                 <div class="info-panel-header">
                     <i class="fas fa-database"></i>
@@ -581,8 +590,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 style="color: var(--neon-blue);">Как использовать блоки:</h6>
-                        <ul style="color: rgba(255, 255, 255, 0.8);">
+                        <h6 style="color: var(--neon-blue); text-align: left;">Как использовать блоки:</h6>
+                        <ul style="color: rgba(255, 255, 255, 0.8); text-align: left;">
                             <li>Блоки хранятся в таблице <code>cms_blocks</code></li>
                             <li>Каждый блок имеет уникальный <code>slug</code></li>
                             <li>Для вставки блока используйте маршрут <code>/page/{slug}</code></li>
@@ -590,8 +599,8 @@
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <h6 style="color: var(--neon-blue);">Пример кода:</h6>
-                        <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; color: #90ee90; font-size: 0.9rem;">
+                        <h6 style="color: var(--neon-blue); text-align: left;">Пример кода:</h6>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; color: #90ee90; font-size: 0.9rem; text-align: left;">
 &lt;!-- Вставка CMS блока в Blade --&gt;
 @php
     try {
@@ -607,7 +616,6 @@
         </div>
     </main>
     
-    <!-- Footer -->
     <footer class="space-footer">
         <div class="container">
             <div class="footer-content">
@@ -624,7 +632,6 @@
     </footer>
 
     <script>
-        // Создание звёздного неба
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -644,7 +651,6 @@
             }
         }
         
-        // Анимация карточек при прокрутке
         function animateCardsOnScroll() {
             const cards = document.querySelectorAll('.cms-card');
             const observer = new IntersectionObserver((entries) => {
@@ -664,16 +670,13 @@
             });
         }
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             createStars();
             
-            // Запускаем анимацию карточек через небольшой таймаут
             setTimeout(() => {
                 animateCardsOnScroll();
             }, 300);
             
-            // Обработка кликов на кнопках
             document.querySelectorAll('.btn-cms').forEach(button => {
                 button.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-2px)';
@@ -684,7 +687,6 @@
                 });
             });
             
-            // Плавная прокрутка для якорей
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -701,7 +703,6 @@
                 });
             });
             
-            // Подсветка активного пункта меню
             const currentPath = window.location.pathname;
             document.querySelectorAll('.nav-link-space').forEach(link => {
                 const linkPath = link.getAttribute('href');

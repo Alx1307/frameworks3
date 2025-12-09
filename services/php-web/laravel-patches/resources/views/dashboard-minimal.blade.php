@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard (МКС + JWST) - Space Dashboard</title>
+    <title>JWST Dashboard - Space Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -25,7 +24,6 @@
             overflow-x: hidden;
         }
         
-        /* Звёздное небо */
         .stars {
             position: fixed;
             top: 0;
@@ -47,7 +45,6 @@
             50% { opacity: 1; }
         }
         
-        /* Header */
         .space-header {
             background: rgba(10, 25, 47, 0.9);
             backdrop-filter: blur(10px);
@@ -121,7 +118,6 @@
             width: 80%;
         }
         
-        /* Main content */
         .main-content {
             padding-top: 120px;
             padding-bottom: 100px;
@@ -138,7 +134,6 @@
             color: transparent;
         }
         
-        /* Карточки */
         .dashboard-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -162,22 +157,6 @@
             font-family: 'Orbitron', sans-serif;
         }
         
-        /* МКС карта */
-        #map {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid rgba(93, 63, 211, 0.3);
-        }
-        
-        /* Графики */
-        .chart-container {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid rgba(93, 63, 211, 0.2);
-        }
-        
-        /* JWST галерея */
         .jwst-slider {
             position: relative;
         }
@@ -245,7 +224,6 @@
             right: -.25rem;
         }
         
-        /* Формы и селекты - ИСПРАВЛЕНО */
         .form-control-space, .form-select-space {
             background: rgba(255, 255, 255, 0.1) !important;
             border: 1px solid rgba(93, 63, 211, 0.3) !important;
@@ -263,7 +241,6 @@
             box-shadow: 0 0 0 0.25rem rgba(0, 212, 255, 0.25) !important;
         }
         
-        /* Стили для выпадающих списков */
         .form-select-space option {
             background: var(--space-blue) !important;
             color: white !important;
@@ -273,7 +250,6 @@
             background: var(--space-purple) !important;
         }
         
-        /* Убираем стандартные стили Bootstrap для селектов */
         select.form-select-space {
             appearance: none;
             -webkit-appearance: none;
@@ -287,74 +263,62 @@
         .btn-space {
             background: linear-gradient(90deg, var(--space-purple), var(--neon-blue));
             border: none;
-            color: white;
+            color: white !important;
             transition: all 0.3s ease;
         }
         
         .btn-space:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-            color: white;
+            color: white !important;
         }
         
-        /* Кнопки навигации */
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.05);
+        .btn-outline-space {
+            background: transparent;
             border: 1px solid rgba(93, 63, 211, 0.3);
-            border-radius: 10px;
-            padding: 10px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
+            color: white !important;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
         }
         
-        .nav-btn:hover {
-            background: rgba(93, 63, 211, 0.2);
+        .btn-outline-space:hover {
             border-color: var(--neon-blue);
-            color: white;
-            transform: translateY(-2px);
-            text-decoration: none;
+            background: rgba(0, 212, 255, 0.1);
+            color: white !important;
         }
         
-        /* Верхние карточки статистики */
-        .stat-card {
+        .info-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(93, 63, 211, 0.2);
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
         }
         
-        .stat-card:hover {
+        .info-card:hover {
             border-color: var(--neon-blue);
             transform: translateY(-3px);
         }
         
-        .stat-label {
+        .info-icon {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+            font-size: 1rem;
             margin-bottom: 5px;
         }
         
-        .stat-value {
-            font-size: 1.8rem;
+        .info-value {
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--neon-blue);
             font-family: 'Orbitron', sans-serif;
         }
         
-        /* Footer */
         .space-footer {
             background: rgba(2, 12, 27, 0.95);
             backdrop-filter: blur(10px);
@@ -392,7 +356,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Планета анимация */
         .planet {
             position: absolute;
             width: 200px;
@@ -411,7 +374,6 @@
             50% { transform: translateY(-30px) rotate(180deg); }
         }
         
-        /* Анимация загрузки */
         .loading-pulse {
             display: inline-block;
             width: 20px;
@@ -422,7 +384,6 @@
             margin-right: 10px;
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -440,21 +401,22 @@
                 height: 150px;
             }
             
-            .nav-buttons {
-                flex-direction: column;
+            .info-card {
+                padding: 15px;
+            }
+            
+            .info-icon {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Звёздное небо -->
     <div class="stars" id="stars"></div>
     
-    <!-- Header -->
     <header class="space-header py-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Логотип -->
                 <div class="logo-container">
                     <a href="/" class="text-decoration-none d-flex align-items-center gap-3">
                         <div class="logo-icon">
@@ -464,7 +426,6 @@
                     </a>
                 </div>
                 
-                <!-- Навигация -->
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
                         <a class="nav-link nav-link-space" href="/">
@@ -477,10 +438,13 @@
                             <i class="fas fa-cogs me-2"></i>CMS
                         </a>
                         <a class="nav-link nav-link-space" href="/dashboard-minimal" style="background: rgba(93, 63, 211, 0.2);">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-globe-europe me-2"></i>JWST
                         </a>
-                        <a class="nav-link nav-link-space active" href="/osdr-new">
+                        <a class="nav-link nav-link-space" href="/osdr-new">
                             <i class="fas fa-database me-2"></i>OSDR
+                        </a>
+                        <a class="nav-link nav-link-space active" href="/iss-new">
+                            <i class="fas fa-satellite me-2"></i>МКС
                         </a>
                     </div>
                 </nav>
@@ -488,113 +452,137 @@
         </div>
     </header>
     
-    <!-- Планета для фона -->
     <div class="planet"></div>
     
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="container pb-5">
-            <h1 class="page-title">Dashboard - МКС и JWST</h1>
+            <h1 class="page-title">JWST Dashboard - Космический телескоп Джеймса Уэбба</h1>
             
-            <!-- Кнопки навигации (как в исходнике) -->
-            <div class="nav-buttons mb-4">
-                <a href="#" class="nav-btn" onclick="alert('Страница ISS пока в разработке')">
-                    <i class="fas fa-satellite"></i>
-                    ISS
-                </a>
-                <a href="/osdr-new" class="nav-btn">
-                    <i class="fas fa-database"></i>
-                    OSDR
-                </a>
-            </div>
-            
-            {{-- верхние карточки --}}
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Скорость МКС</div>
-                        <div class="stat-value">{{ isset(($iss['payload'] ?? [])['velocity']) ? number_format($iss['payload']['velocity'],0,'',' ') : '—' }}</div>
-                        <small class="text-muted">км/ч</small>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <div class="info-label">Диаметр зеркала</div>
+                        <div class="info-value">6.5 м</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Высота МКС</div>
-                        <div class="stat-value">{{ isset(($iss['payload'] ?? [])['altitude']) ? number_format($iss['payload']['altitude'],0,'',' ') : '—' }}</div>
-                        <small class="text-muted">км</small>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="info-label">Точка Лагранжа</div>
+                        <div class="info-value">L₂</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Широта</div>
-                        <div class="stat-value">{{ isset(($iss['payload'] ?? [])['latitude']) ? number_format($iss['payload']['latitude'],2) : '—' }}</div>
-                        <small class="text-muted">градусы</small>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-label">Долгота</div>
-                        <div class="stat-value">{{ isset(($iss['payload'] ?? [])['longitude']) ? number_format($iss['payload']['longitude'],2) : '—' }}</div>
-                        <small class="text-muted">градусы</small>
+                <div class="col-md-4">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="info-label">Инструменты</div>
+                        <div class="info-value">5</div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-4">
-                {{-- левая колонка: JWST наблюдение --}}
-                <div class="col-lg-7">
+                <div class="col-lg-8">
                     <div class="dashboard-card h-100">
                         <div class="card-header card-header-space">
-                            <i class="fas fa-telescope me-2"></i>JWST — выбранное наблюдение
+                            <i class="fas fa-telescope me-2"></i>JWST — Информация о телескопе
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-info bg-dark border-info">
+                            <div class="alert alert-info bg-dark border-info mb-4">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0">
                                         <i class="fas fa-info-circle text-info fs-4"></i>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="alert-heading text-info">Информация о JWST</h6>
-                                        <p class="mb-0">
-                                            Космический телескоп Джеймса Уэбба (JWST) — инфракрасный телескоп с составным зеркалом 6,5 м, 
-                                            находящийся в точке Лагранжа L₂ системы Солнце—Земля. Предназначен для наблюдений в инфракрасном диапазоне.
+                                        <h6 class="alert-heading text-info">Космический телескоп Джеймса Уэбба</h6>
+                                        <p class="mb-0" style="color: rgba(255, 255, 255, 0.9);">
+                                            JWST — инфракрасный телескоп с составным зеркалом 6,5 м, 
+                                            находящийся в точке Лагранжа L₂ системы Солнце—Земля. 
+                                            Предназначен для наблюдений в инфракрасном диапазоне с длинами волн от 0,6 до 28 микрометров.
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-center py-4">
-                                <i class="fas fa-telescope text-info" style="font-size: 4rem; opacity: 0.7;"></i>
-                                <p class="mt-3 text-muted">Выберите наблюдение из галереи ниже</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-info mb-3"><i class="fas fa-list me-2"></i>Основные характеристики</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            <strong>Запуск:</strong> 25 декабря 2021
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            <strong>Орбита:</strong> Точка L₂ (1.5 млн км от Земли)
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            <strong>Масса:</strong> 6,500 кг
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            <strong>Мощность:</strong> 2,000 ватт
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-info mb-3"><i class="fas fa-microscope me-2"></i>Научные инструменты</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-camera text-warning me-2"></i>
+                                            <strong>NIRCam</strong> - Ближняя инфракрасная камера
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-eye text-warning me-2"></i>
+                                            <strong>NIRSpec</strong> - Ближний инфракрасный спектрограф
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-thermometer text-warning me-2"></i>
+                                            <strong>MIRI</strong> - Средний инфракрасный инструмент
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-ruler text-warning me-2"></i>
+                                            <strong>NIRISS</strong> - Ближний инфракрасный имитатор щели
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- правая колонка: карта МКС --}}
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                     <div class="dashboard-card h-100">
                         <div class="card-header card-header-space">
-                            <i class="fas fa-satellite me-2"></i>МКС — положение и движение
+                            <i class="fas fa-rocket me-2"></i>Быстрые ссылки
                         </div>
                         <div class="card-body">
-                            <div id="map" class="rounded mb-3" style="height:300px"></div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <div class="chart-container">
-                                        <canvas id="issSpeedChart" height="110"></canvas>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="chart-container">
-                                        <canvas id="issAltChart" height="110"></canvas>
-                                    </div>
-                                </div>
+                            <div class="d-grid gap-3">
+                                <a href="https://webb.nasa.gov" target="_blank" class="btn btn-space">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    Официальный сайт NASA JWST
+                                </a>
+                                <a href="https://webbtelescope.org" target="_blank" class="btn btn-outline-space">
+                                    <i class="fas fa-images me-2"></i>
+                                    Галерея изображений JWST
+                                </a>
+                                <button class="btn btn-outline-space" onclick="window.location.reload()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Обновить данные
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- НИЖНЯЯ ПОЛОСА: ГАЛЕРЕЯ JWST --}}
                 <div class="col-12">
                     <div class="dashboard-card">
                         <div class="card-header card-header-space d-flex justify-content-between align-items-center">
@@ -646,12 +634,9 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- УБРАН блок "Полная версия Dashboard" -->
         </div>
     </main>
     
-    <!-- Footer -->
     <footer class="space-footer">
         <div class="container">
             <div class="footer-content">
@@ -667,13 +652,9 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Создание звёздного неба
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -693,158 +674,9 @@
             }
         }
         
-        // ====== карта и графики МКС ======
         document.addEventListener('DOMContentLoaded', async function () {
             createStars();
             
-            // Инициализация карты МКС
-            if (typeof L !== 'undefined' && typeof Chart !== 'undefined') {
-                const last = @json(($iss['payload'] ?? []));
-                let lat0 = Number(last.latitude || 0);
-                let lon0 = Number(last.longitude || 0);
-                
-                const map = L.map('map', { 
-                    attributionControl: false,
-                    zoomControl: true
-                }).setView([lat0 || 0, lon0 || 0], lat0 ? 3 : 2);
-                
-                // Космическая тема для карты
-                L.tileLayer('https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png', { 
-                    noWrap: true,
-                    className: 'map-tiles'
-                }).addTo(map);
-                
-                const trail = L.polyline([], {
-                    weight: 3,
-                    color: '#00d4ff',
-                    opacity: 0.7
-                }).addTo(map);
-                
-                // Создаем кастомную иконку для МКС
-                const issIcon = L.divIcon({
-                    html: '<i class="fas fa-satellite" style="color:#00d4ff; font-size:24px; text-shadow:0 0 10px #00d4ff;"></i>',
-                    iconSize: [30, 30],
-                    className: 'iss-icon'
-                });
-                
-                const marker = L.marker([lat0 || 0, lon0 || 0], { icon: issIcon })
-                    .addTo(map)
-                    .bindPopup('<b>Международная космическая станция</b><br>Текущее положение');
-                
-                // Графики
-                const speedChart = new Chart(document.getElementById('issSpeedChart'), {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            label: 'Скорость МКС',
-                            data: [],
-                            borderColor: '#00d4ff',
-                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            x: { display: false },
-                            y: {
-                                beginAtZero: false,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                const altChart = new Chart(document.getElementById('issAltChart'), {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            label: 'Высота МКС',
-                            data: [],
-                            borderColor: '#5d3fd3',
-                            backgroundColor: 'rgba(93, 63, 211, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            x: { display: false },
-                            y: {
-                                beginAtZero: false,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // Загрузка трендов МКС
-                async function loadTrend() {
-                    try {
-                        const r = await fetch('/api/iss/trend?limit=120');
-                        const js = await r.json();
-                        const pts = Array.isArray(js.points) ? js.points.map(p => [p.lat, p.lon]) : [];
-                        
-                        if (pts.length) {
-                            trail.setLatLngs(pts);
-                            marker.setLatLng(pts[pts.length - 1]);
-                            
-                            // Центрируем карту на последней позиции
-                            map.setView(pts[pts.length - 1], 3);
-                        }
-                        
-                        const t = (js.points || []).map(p => {
-                            const date = new Date(p.at);
-                            return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-                        });
-                        
-                        // Обновляем график скорости
-                        speedChart.data.labels = t;
-                        speedChart.data.datasets[0].data = (js.points || []).map(p => p.velocity);
-                        speedChart.update('none');
-                        
-                        // Обновляем график высоты
-                        altChart.data.labels = t;
-                        altChart.data.datasets[0].data = (js.points || []).map(p => p.altitude);
-                        altChart.update('none');
-                        
-                    } catch (e) {
-                        console.error('Ошибка загрузки трендов МКС:', e);
-                    }
-                }
-                
-                // Загружаем данные сразу и каждые 15 секунд
-                loadTrend();
-                setInterval(loadTrend, 15000);
-            }
-            
-            // ====== JWST ГАЛЕРЕЯ ======
             const track = document.getElementById('jwstTrack');
             const info = document.getElementById('jwstInfo');
             const form = document.getElementById('jwstFilter');
@@ -882,7 +714,8 @@
                                 <figcaption class="jwst-cap">${(it.caption || '').replaceAll('<', '&lt;').substring(0, 50)}${(it.caption || '').length > 50 ? '...' : ''}</figcaption>`;
                             track.appendChild(fig);
                         });
-                        info.textContent = `Источник: ${js.source} · Показано ${js.count || 0} изображений`;
+                        
+                        info.textContent = `Источник: ${js.source} · Показано ${js.items.length} изображений`;
                     } else {
                         track.innerHTML = '<div class="p-5 text-center text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Изображения не найдены</div>';
                         info.textContent = 'Нет данных для отображения';
@@ -900,7 +733,6 @@
                 loadFeed(q);
             });
             
-            // Навигация по галерее
             document.querySelector('.jwst-prev').addEventListener('click', () => track.scrollBy({
                 left: -600,
                 behavior: 'smooth'
@@ -911,15 +743,13 @@
                 behavior: 'smooth'
             }));
             
-            // Стартовые данные
             loadFeed({
                 source: 'jpg',
                 perPage: 24
             });
             
-            // Анимация при скролле
             function handleScrollAnimations() {
-                const cards = document.querySelectorAll('.dashboard-card, .stat-card');
+                const cards = document.querySelectorAll('.dashboard-card, .info-card');
                 const windowHeight = window.innerHeight;
                 
                 cards.forEach((card, index) => {
@@ -933,8 +763,7 @@
                 });
             }
             
-            // Инициализация анимаций
-            const cards = document.querySelectorAll('.dashboard-card, .stat-card');
+            const cards = document.querySelectorAll('.dashboard-card, .info-card');
             cards.forEach(card => {
                 card.style.opacity = "0";
                 card.style.transform = "translateY(20px)";

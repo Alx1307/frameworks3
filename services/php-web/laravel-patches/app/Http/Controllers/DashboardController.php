@@ -17,15 +17,14 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // минимум: карта МКС и пустые контейнеры, JWST-галерея подтянется через /api/jwst/feed
         $b     = $this->base();
         $iss   = $this->getJson($b.'/last');
-        $trend = []; // фронт сам заберёт /api/iss/trend (через nginx прокси)
+        $trend = [];
 
         return view('dashboard', [
             'iss' => $iss,
             'trend' => $trend,
-            'jw_gallery' => [], // не нужно сервером
+            'jw_gallery' => [],
             'jw_observation_raw' => [],
             'jw_observation_summary' => [],
             'jw_observation_images' => [],
@@ -38,18 +37,13 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * Минимальная версия Dashboard (только МКС и JWST)
-     */
     public function minimal()
     {
-        // Получаем данные МКС
         $b = $this->base();
         $iss = $this->getJson($b.'/last');
 
         return view('dashboard-minimal', [
             'iss' => $iss,
-            // Не передаем астрономические данные и CMS для минимальной версии
             'metrics' => [
                 'iss_speed' => $iss['payload']['velocity'] ?? null,
                 'iss_alt'   => $iss['payload']['altitude'] ?? null,

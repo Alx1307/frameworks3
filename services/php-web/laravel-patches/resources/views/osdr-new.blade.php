@@ -27,7 +27,6 @@
             overflow-x: hidden;
         }
         
-        /* Звёздное небо */
         .stars {
             position: fixed;
             top: 0;
@@ -49,7 +48,6 @@
             50% { opacity: 1; }
         }
         
-        /* Header */
         .space-header {
             background: rgba(10, 25, 47, 0.95);
             backdrop-filter: blur(10px);
@@ -123,7 +121,6 @@
             width: 80%;
         }
         
-        /* Main content */
         .main-content {
             padding-top: 120px;
             padding-bottom: 100px;
@@ -146,7 +143,6 @@
             margin-bottom: 30px;
         }
         
-        /* Информационная панель */
         .info-panel {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -167,7 +163,6 @@
             font-family: 'Orbitron', sans-serif;
         }
         
-        /* Таблица OSDR - переделана с тёмным фоном */
         .osdr-table-container {
             background: rgba(15, 30, 50, 0.85) !important;
             backdrop-filter: blur(10px) !important;
@@ -200,14 +195,12 @@
             text-align: left !important;
         }
         
-        /* Колонки одинаковой ширины */
-        .osdr-table th:nth-child(1) { width: 60px; } /* # */
-        .osdr-table th:nth-child(2) { width: 120px; } /* dataset_id */
-        .osdr-table th:nth-child(3) { width: 120px; } /* title */
-        .osdr-table th:nth-child(4) { width: 120px; } /* REST_URL */
-        .osdr-table th:nth-child(5) { width: 120px; } /* updated_at */
-        .osdr-table th:nth-child(6) { width: 250px; } /* inserted_at */
-        .osdr-table th:nth-child(7) { width: 100px; } /* raw */
+        .osdr-table th:nth-child(1) { width: 60px; }
+        .osdr-table th:nth-child(2) { width: 250px; }
+        .osdr-table th:nth-child(3) { width: 120px; }
+        .osdr-table th:nth-child(4) { width: 120px; }
+        .osdr-table th:nth-child(5) { width: 250px; }
+        .osdr-table th:nth-child(6) { width: 100px; }
         
         .osdr-table tbody tr {
             background-color: rgba(25, 45, 70, 0.6) !important;
@@ -241,8 +234,7 @@
             border-color: rgba(255, 255, 255, 0.1) !important;
         }
         
-        /* Специально для ячейки title - многострочный текст */
-        .osdr-table tbody td:nth-child(3) {
+        .osdr-table tbody td:nth-child(2) {
             white-space: normal;
             max-height: 60px;
             overflow: hidden;
@@ -253,7 +245,6 @@
             line-height: 1.4;
         }
         
-        /* Кнопки */
         .btn-osdr {
             background: linear-gradient(90deg, var(--space-purple), var(--neon-blue));
             border: none;
@@ -282,7 +273,6 @@
             color: white;
         }
         
-        /* Ссылки */
         .osdr-link {
             color: var(--neon-blue);
             text-decoration: none;
@@ -297,7 +287,6 @@
             text-decoration: underline;
         }
         
-        /* JSON блок */
         .json-block {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(93, 63, 211, 0.3);
@@ -340,7 +329,6 @@
             background: rgba(0, 212, 255, 0.2);
         }
         
-        /* Пустое состояние */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -354,7 +342,6 @@
             opacity: 0.5;
         }
         
-        /* Фильтры и поиск */
         .filter-panel {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -386,7 +373,6 @@
             color: white;
         }
         
-        /* Статус */
         .items-count {
             display: inline-flex;
             align-items: center;
@@ -400,7 +386,6 @@
             border: 1px solid rgba(93, 63, 211, 0.3);
         }
         
-        /* Пагинация */
         .osdr-pagination {
             display: flex;
             justify-content: center;
@@ -424,7 +409,6 @@
             color: white;
         }
         
-        /* Footer */
         .space-footer {
             background: rgba(2, 12, 27, 0.95);
             backdrop-filter: blur(10px);
@@ -462,7 +446,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Планета анимация */
         .planet {
             position: absolute;
             width: 200px;
@@ -481,7 +464,6 @@
             50% { transform: translateY(-30px) rotate(180deg); }
         }
         
-        /* Анимация загрузки */
         .loading-pulse {
             display: inline-block;
             width: 20px;
@@ -492,7 +474,6 @@
             margin-right: 10px;
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -516,30 +497,25 @@
                 gap: 10px;
             }
             
-            /* Для мобильных делаем таблицу с прокруткой */
             .osdr-table-container {
                 border-radius: 10px;
             }
             
             .osdr-table th:nth-child(1) { width: 50px; }
-            .osdr-table th:nth-child(2) { width: 100px; }
-            .osdr-table th:nth-child(3) { width: 150px; }
-            .osdr-table th:nth-child(4) { width: 80px; }
+            .osdr-table th:nth-child(2) { width: 200px; }
+            .osdr-table th:nth-child(3) { width: 80px; }
+            .osdr-table th:nth-child(4) { width: 100px; }
             .osdr-table th:nth-child(5) { width: 100px; }
-            .osdr-table th:nth-child(6) { width: 100px; }
-            .osdr-table th:nth-child(7) { width: 80px; }
+            .osdr-table th:nth-child(6) { width: 80px; }
         }
     </style>
 </head>
 <body>
-    <!-- Звёздное небо -->
     <div class="stars" id="stars"></div>
     
-    <!-- Header -->
     <header class="space-header py-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Логотип -->
                 <div class="logo-container">
                     <a href="/" class="text-decoration-none d-flex align-items-center gap-3">
                         <div class="logo-icon">
@@ -549,7 +525,6 @@
                     </a>
                 </div>
                 
-                <!-- Навигация -->
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
                         <a class="nav-link nav-link-space" href="/">
@@ -562,10 +537,13 @@
                             <i class="fas fa-cogs me-2"></i>CMS
                         </a>
                         <a class="nav-link nav-link-space" href="/dashboard-minimal">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-globe-europe me-2"></i>JWST
                         </a>
-                        <a class="nav-link nav-link-space active" href="/osdr-new" style="background: rgba(93, 63, 211, 0.2);">
+                        <a class="nav-link nav-link-space" href="/osdr-new" style="background: rgba(93, 63, 211, 0.2);">
                             <i class="fas fa-database me-2"></i>OSDR
+                        </a>
+                        <a class="nav-link nav-link-space active" href="/iss-new">
+                            <i class="fas fa-satellite me-2"></i>МКС
                         </a>
                     </div>
                 </nav>
@@ -573,18 +551,15 @@
         </div>
     </header>
     
-    <!-- Планета для фона -->
     <div class="planet"></div>
     
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="container">
             <h1 class="page-title">NASA OSDR - Открытый репозиторий научных данных</h1>
             <p class="page-subtitle">
-                Просмотр и исследование данных из NASA Open Science Data Repository
+                Просмотр данных из NASA Open Science Data Repository
             </p>
             
-            <!-- Информационная панель -->
             <div class="info-panel">
                 <div class="info-panel-header">
                     <i class="fas fa-info-circle"></i>
@@ -613,7 +588,6 @@
                 </div>
             </div>
             
-            <!-- Фильтры и поиск -->
             <div class="filter-panel">
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -635,16 +609,14 @@
                 </div>
             </div>
             
-            <!-- Таблица данных OSDR -->
             <div class="osdr-table-container">
                 <div class="table-responsive">
                     <table class="table osdr-table">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>dataset_id</th>
                                 <th>title</th>
-                                <th>REST_URL</th>
+                                <th>rest_url</th>
                                 <th>updated_at</th>
                                 <th>inserted_at</th>
                                 <th>raw</th>
@@ -655,11 +627,6 @@
                             <tr>
                                 <td>
                                     <span class="badge bg-dark" style="font-family: 'Orbitron';">{{ $row['id'] ?? '—' }}</span>
-                                </td>
-                                <td>
-                                    <code style="color: var(--neon-blue); font-size: 0.9rem;">
-                                        {{ $row['dataset_id'] ?? '—' }}
-                                    </code>
                                 </td>
                                 <td>
                                     {{ $row['title'] ?? '—' }}
@@ -682,9 +649,8 @@
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Скрытый блок с JSON -->
                             <tr class="collapse" id="raw-{{ $row['id'] }}-{{ md5($row['dataset_id'] ?? (string)$row['id']) }}">
-                                <td colspan="7">
+                                <td colspan="6">
                                     <div class="json-block">
                                         <button class="json-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#raw-{{ $row['id'] }}-{{ md5($row['dataset_id'] ?? (string)$row['id']) }}" aria-expanded="false">
                                             <span>Полный JSON (нажмите чтобы скрыть)</span>
@@ -696,7 +662,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="6">
                                     <div class="empty-state">
                                         <div class="empty-icon">
                                             <i class="fas fa-database"></i>
@@ -715,7 +681,6 @@
                 </div>
             </div>
             
-            <!-- Пагинация -->
             @if(isset($items) && count($items) > 0)
             <div class="osdr-pagination">
                 <a href="#" class="page-link-osdr">
@@ -734,7 +699,6 @@
         </div>
     </main>
     
-    <!-- Footer -->
     <footer class="space-footer">
         <div class="container">
             <div class="footer-content">
@@ -750,11 +714,9 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Создание звёздного неба
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -774,11 +736,9 @@
             }
         }
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             createStars();
             
-            // Анимация строк таблицы при появлении
             const tableRows = document.querySelectorAll('.osdr-table tbody tr:not(.collapse)');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -798,7 +758,6 @@
                 }
             });
             
-            // Обработка JSON кнопок
             document.querySelectorAll('.json-toggle').forEach(button => {
                 button.addEventListener('click', function() {
                     const icon = this.querySelector('i');
@@ -814,7 +773,6 @@
                 });
             });
             
-            // Обработка поиска
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -832,16 +790,13 @@
                 });
             }
             
-            // Обработка фильтров
             const filterBtn = document.getElementById('filterBtn');
             if (filterBtn) {
                 filterBtn.addEventListener('click', function() {
-                    // Здесь можно добавить логику фильтрации
                     alert('Фильтрация будет реализована в следующей версии');
                 });
             }
             
-            // Подсветка активного пункта меню
             const currentPath = window.location.pathname;
             document.querySelectorAll('.nav-link-space').forEach(link => {
                 const linkPath = link.getAttribute('href');
@@ -851,9 +806,7 @@
                 }
             });
             
-            // Добавляем обработку ошибок JSON данных
             try {
-                // Проверяем, есть ли данные
                 const itemCount = {{ count($items ?? []) }};
                 if (itemCount === 0) {
                     console.log('Нет данных для отображения');
@@ -863,7 +816,6 @@
             }
         });
         
-        // Функция для обновления данных
         function refreshData() {
             const refreshBtn = document.querySelector('.btn-osdr .fa-sync-alt');
             if (refreshBtn) {

@@ -23,7 +23,6 @@
             overflow-x: hidden;
         }
         
-        /* Звёздное небо */
         .stars {
             position: fixed;
             top: 0;
@@ -45,7 +44,6 @@
             50% { opacity: 1; }
         }
         
-        /* Header */
         .space-header {
             background: rgba(10, 25, 47, 0.9);
             backdrop-filter: blur(10px);
@@ -119,7 +117,6 @@
             width: 80%;
         }
         
-        /* Main content */
         .main-content {
             padding-top: 120px;
             padding-bottom: 100px;
@@ -129,25 +126,24 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             background: linear-gradient(90deg, #00d4ff, #5d3fd3);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-align: center;
+            text-align: left;
         }
         
         .page-subtitle {
             color: rgba(255, 255, 255, 0.8);
-            text-align: center;
+            text-align: left;
             margin-bottom: 40px;
             font-size: 1.1rem;
             max-width: 800px;
-            margin-left: auto;
+            margin-left: 0;
             margin-right: auto;
         }
         
-        /* Карточка событий */
         .events-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -169,6 +165,7 @@
             font-weight: 600;
             color: var(--neon-blue);
             margin: 0;
+            text-align: left;
         }
         
         .form-control-astro {
@@ -197,7 +194,6 @@
             color: white;
         }
         
-        /* Таблица */
         .table-astro {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 10px;
@@ -209,6 +205,7 @@
             color: var(--neon-blue);
             border-bottom: 2px solid rgba(93, 63, 211, 0.3);
             font-weight: 600;
+            text-align: left;
         }
         
         .table-astro tbody tr {
@@ -223,9 +220,9 @@
         .table-astro tbody td {
             color: rgba(255, 255, 255, 0.9);
             vertical-align: middle;
+            text-align: left;
         }
         
-        /* JSON блок */
         .json-panel {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(93, 63, 211, 0.3);
@@ -238,6 +235,7 @@
             font-weight: 600;
             padding: 10px 15px;
             cursor: pointer;
+            text-align: left;
         }
         
         .json-panel pre {
@@ -248,9 +246,9 @@
             font-size: 0.85rem;
             max-height: 400px;
             overflow-y: auto;
+            text-align: left;
         }
         
-        /* Footer */
         .space-footer {
             background: rgba(2, 12, 27, 0.95);
             backdrop-filter: blur(10px);
@@ -288,7 +286,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Планета анимация */
         .planet {
             position: absolute;
             width: 200px;
@@ -307,7 +304,6 @@
             50% { transform: translateY(-30px) rotate(180deg); }
         }
         
-        /* Анимация загрузки */
         .loading-pulse {
             display: inline-block;
             width: 20px;
@@ -318,7 +314,6 @@
             margin-right: 10px;
         }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -331,19 +326,20 @@
             .table-responsive {
                 font-size: 0.9rem;
             }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Звёздное небо -->
     <div class="stars" id="stars"></div>
     
-    <!-- Header -->
     <header class="space-header py-3">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- Логотип -->
                 <div class="logo-container">
                     <a href="/" class="text-decoration-none d-flex align-items-center gap-3">
                         <div class="logo-icon">
@@ -353,7 +349,6 @@
                     </a>
                 </div>
                 
-                <!-- Навигация -->
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
                         <a class="nav-link nav-link-space" href="/">
@@ -366,10 +361,13 @@
                             <i class="fas fa-cogs me-2"></i>CMS
                         </a>
                         <a class="nav-link nav-link-space" href="/dashboard-minimal">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-globe-europe me-2"></i>JWST
                         </a>
-                        <a class="nav-link nav-link-space active" href="/osdr-new">
+                        <a class="nav-link nav-link-space" href="/osdr-new">
                             <i class="fas fa-database me-2"></i>OSDR
+                        </a>
+                        <a class="nav-link nav-link-space active" href="/iss-new">
+                            <i class="fas fa-satellite me-2"></i>МКС
                         </a>
                     </div>
                 </nav>
@@ -377,10 +375,8 @@
         </div>
     </header>
     
-    <!-- Планета для фона -->
     <div class="planet"></div>
     
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="container">
             <h1 class="page-title">Астрономические события</h1>
@@ -390,7 +386,6 @@
                 через AstronomyAPI.
             </p>
             
-            <!-- Карточка событий -->
             <div class="events-card">
                 <div class="events-header">
                     <h5 class="events-title">Фильтр событий</h5>
@@ -421,7 +416,6 @@
                 </form>
             </div>
             
-            <!-- Таблица событий -->
             <div class="events-card">
                 <div class="events-header">
                     <h5 class="events-title">Результаты</h5>
@@ -452,7 +446,6 @@
                     </table>
                 </div>
                 
-                <!-- JSON блок -->
                 <div class="json-panel">
                     <details>
                         <summary>Полный JSON ответ</summary>
@@ -461,7 +454,6 @@
                 </div>
             </div>
             
-            <!-- Информация о данных -->
             <div class="alert alert-info bg-dark border-info">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
@@ -480,7 +472,6 @@
         </div>
     </main>
     
-    <!-- Footer -->
     <footer class="space-footer">
         <div class="container">
             <div class="footer-content">
@@ -497,7 +488,6 @@
     </footer>
 
     <script>
-        // Создание звёздного неба
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -517,7 +507,6 @@
             }
         }
         
-        // Функции для работы с событиями
         function normalize(node){
             const name = node.name || node.body || node.object || node.target || '';
             const type = node.type || node.event_type || node.category || node.kind || '';
@@ -544,7 +533,6 @@
             const raw = document.getElementById('astroRaw');
             const countElement = document.getElementById('eventsCount');
             
-            // Показываем загрузку
             body.innerHTML = `
                 <tr>
                     <td colspan="5" class="text-center py-5">
@@ -582,10 +570,8 @@
                     return;
                 }
                 
-                // Обновляем счетчик
                 countElement.textContent = rows.length;
                 
-                // Форматируем строки таблицы
                 body.innerHTML = rows.slice(0, 200).map((row, index) => `
                     <tr>
                         <td><span class="badge bg-primary">${index + 1}</span></td>
@@ -623,7 +609,6 @@
             }
         }
         
-        // Вспомогательные функции
         function getBodyIcon(bodyName) {
             const bodyLower = bodyName.toLowerCase();
             if (bodyLower.includes('sun') || bodyLower.includes('солн')) return '<i class="fas fa-sun ms-2 text-warning"></i>';
@@ -661,13 +646,11 @@
             }
         }
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             createStars();
             
             const form = document.getElementById('astroForm');
             
-            // Загружаем события по умолчанию при загрузке страницы
             const defaultParams = {
                 lat: form.lat.value,
                 lon: form.lon.value,
@@ -675,7 +658,6 @@
             };
             loadEvents(defaultParams);
             
-            // Обработка отправки формы
             form.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const formData = new FormData(form);
@@ -683,7 +665,6 @@
                 loadEvents(params);
             });
             
-            // Анимация для строк таблицы при появлении
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -693,7 +674,6 @@
                 });
             }, { threshold: 0.1 });
             
-            // Наблюдаем за строками таблицы
             setTimeout(() => {
                 document.querySelectorAll('#astroBody tr').forEach(row => {
                     row.style.opacity = "0";
