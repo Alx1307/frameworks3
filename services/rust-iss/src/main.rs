@@ -1,3 +1,6 @@
+mod config;
+mod domain;
+
 use std::{collections::HashMap, time::Duration};
 
 use axum::{
@@ -13,21 +16,18 @@ use sqlx::{postgres::PgPoolOptions, PgPool, Row};
 use tracing::{error, info};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
 
+use config::Config;
+use domain::iss::{IssTrend, haversine_km, extract_number};
+use domain::osdr::{OsdrItem, OsdrSyncResult};
+use domain::space_cache::{SpaceCacheLatest, SpaceCacheRefreshResult, SpaceSummary, CacheSource};
+
 #[derive(Serialize)]
 struct Health { status: &'static str, now: DateTime<Utc> }
 
 #[derive(Clone)]
 struct AppState {
     pool: PgPool,
-    nasa_url: String,          // OSDR
-    nasa_key: String,          // ключ NASA
-    fallback_url: String,      // ISS where-the-iss
-    every_osdr: u64,
-    every_iss: u64,
-    every_apod: u64,
-    every_neo: u64,
-    every_donki: u64,
-    every_spacex: u64,
+    config: Config,
 }
 
 #[tokio::main]
@@ -37,33 +37,13 @@ async fn main() -> anyhow::Result<()> {
         .finish();
     let _ = tracing::subscriber::set_global_default(subscriber);
 
-    dotenvy::dotenv().ok();
+    let config = Config::from_env()?;
 
-    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is required");
-
-    let nasa_url = std::env::var("NASA_API_URL")
-        .unwrap_or_else(|_| "https://visualization.osdr.nasa.gov/biodata/api/v2/datasets/?format=json".to_string());
-    let nasa_key = std::env::var("NASA_API_KEY").unwrap_or_default();
-
-    let fallback_url = std::env::var("WHERE_ISS_URL")
-        .unwrap_or_else(|_| "https://api.wheretheiss.at/v1/satellites/25544".to_string());
-
-    let every_osdr   = env_u64("FETCH_EVERY_SECONDS", 600);
-    let every_iss    = env_u64("ISS_EVERY_SECONDS",   120);
-    let every_apod   = env_u64("APOD_EVERY_SECONDS",  43200); // 12ч
-    let every_neo    = env_u64("NEO_EVERY_SECONDS",   7200);  // 2ч
-    let every_donki  = env_u64("DONKI_EVERY_SECONDS", 3600);  // 1ч
-    let every_spacex = env_u64("SPACEX_EVERY_SECONDS",3600);
-
-    let pool = PgPoolOptions::new().max_connections(5).connect(&db_url).await?;
-    init_db(&pool).await?;
+    let pool = PgPoolOptions::new().max_connections(5).connect(&config.database_url).await?;
 
     let state = AppState {
         pool: pool.clone(),
-        nasa_url: nasa_url.clone(),
-        nasa_key,
-        fallback_url: fallback_url.clone(),
-        every_osdr, every_iss, every_apod, every_neo, every_donki, every_spacex,
+        config: config.clone(),
     };
 
     // фон OSDR
@@ -72,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             loop {
                 if let Err(e) = fetch_and_store_osdr(&st).await { error!("osdr err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_osdr)).await;
+                tokio::time::sleep(Duration::from_secs(st.config.fetch_every_seconds)).await;
             }
         });
     }
@@ -81,8 +61,8 @@ async fn main() -> anyhow::Result<()> {
         let st = state.clone();
         tokio::spawn(async move {
             loop {
-                if let Err(e) = fetch_and_store_iss(&st.pool, &st.fallback_url).await { error!("iss err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_iss)).await;
+                if let Err(e) = fetch_and_store_iss(&st.pool, &st.config.where_iss_url).await { error!("iss err {e:?}") }
+                tokio::time::sleep(Duration::from_secs(st.config.iss_every_seconds)).await;
             }
         });
     }
@@ -92,7 +72,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             loop {
                 if let Err(e) = fetch_apod(&st).await { error!("apod err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_apod)).await;
+                tokio::time::sleep(Duration::from_secs(st.config.apod_every_seconds)).await;
             }
         });
     }
@@ -102,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             loop {
                 if let Err(e) = fetch_neo_feed(&st).await { error!("neo err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_neo)).await;
+                tokio::time::sleep(Duration::from_secs(st.config.neo_every_seconds)).await;
             }
         });
     }
@@ -112,7 +92,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             loop {
                 if let Err(e) = fetch_donki(&st).await { error!("donki err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_donki)).await;
+                tokio::time::sleep(Duration::from_secs(st.config.donki_every_seconds)).await;
             }
         });
     }
@@ -122,7 +102,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             loop {
                 if let Err(e) = fetch_spacex_next(&st).await { error!("spacex err {e:?}") }
-                tokio::time::sleep(Duration::from_secs(st.every_spacex)).await;
+                tokio::time::sleep(Duration::from_secs(st.config.spacex_every_seconds)).await;
             }
         });
     }
@@ -150,53 +130,6 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn env_u64(k: &str, d: u64) -> u64 {
-    std::env::var(k).ok().and_then(|s| s.parse().ok()).unwrap_or(d)
-}
-
-/* ---------- DB boot ---------- */
-async fn init_db(pool: &PgPool) -> anyhow::Result<()> {
-    // ISS
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS iss_fetch_log(
-            id BIGSERIAL PRIMARY KEY,
-            fetched_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-            source_url TEXT NOT NULL,
-            payload JSONB NOT NULL
-        )"
-    ).execute(pool).await?;
-
-    // OSDR
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS osdr_items(
-            id BIGSERIAL PRIMARY KEY,
-            dataset_id TEXT,
-            title TEXT,
-            status TEXT,
-            updated_at TIMESTAMPTZ,
-            inserted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-            raw JSONB NOT NULL
-        )"
-    ).execute(pool).await?;
-    sqlx::query(
-        "CREATE UNIQUE INDEX IF NOT EXISTS ux_osdr_dataset_id
-         ON osdr_items(dataset_id) WHERE dataset_id IS NOT NULL"
-    ).execute(pool).await?;
-
-    // универсальный кэш космоданных
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS space_cache(
-            id BIGSERIAL PRIMARY KEY,
-            source TEXT NOT NULL,
-            fetched_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-            payload JSONB NOT NULL
-        )"
-    ).execute(pool).await?;
-    sqlx::query("CREATE INDEX IF NOT EXISTS ix_space_cache_source ON space_cache(source,fetched_at DESC)").execute(pool).await?;
-
-    Ok(())
-}
-
 /* ---------- ISS ---------- */
 async fn last_iss(State(st): State<AppState>)
 -> Result<Json<Value>, (StatusCode, String)> {
@@ -221,37 +154,19 @@ async fn last_iss(State(st): State<AppState>)
 
 async fn trigger_iss(State(st): State<AppState>)
 -> Result<Json<Value>, (StatusCode, String)> {
-    fetch_and_store_iss(&st.pool, &st.fallback_url).await
+    fetch_and_store_iss(&st.pool, &st.config.where_iss_url).await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     last_iss(State(st)).await
 }
 
-#[derive(Serialize)]
-struct Trend {
-    movement: bool,
-    delta_km: f64,
-    dt_sec: f64,
-    velocity_kmh: Option<f64>,
-    from_time: Option<DateTime<Utc>>,
-    to_time: Option<DateTime<Utc>>,
-    from_lat: Option<f64>,
-    from_lon: Option<f64>,
-    to_lat: Option<f64>,
-    to_lon: Option<f64>,
-}
-
 async fn iss_trend(State(st): State<AppState>)
--> Result<Json<Trend>, (StatusCode, String)> {
+-> Result<Json<IssTrend>, (StatusCode, String)> {
     let rows = sqlx::query("SELECT fetched_at, payload FROM iss_fetch_log ORDER BY id DESC LIMIT 2")
         .fetch_all(&st.pool).await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     if rows.len() < 2 {
-        return Ok(Json(Trend {
-            movement: false, delta_km: 0.0, dt_sec: 0.0, velocity_kmh: None,
-            from_time: None, to_time: None,
-            from_lat: None, from_lon: None, to_lat: None, to_lon: None
-        }));
+        return Ok(Json(IssTrend::empty()));
     }
 
     let t2: DateTime<Utc> = rows[0].get("fetched_at");
@@ -259,11 +174,11 @@ async fn iss_trend(State(st): State<AppState>)
     let p2: Value = rows[0].get("payload");
     let p1: Value = rows[1].get("payload");
 
-    let lat1 = num(&p1["latitude"]);
-    let lon1 = num(&p1["longitude"]);
-    let lat2 = num(&p2["latitude"]);
-    let lon2 = num(&p2["longitude"]);
-    let v2 = num(&p2["velocity"]);
+    let lat1 = extract_number(&p1["latitude"]);
+    let lon1 = extract_number(&p1["longitude"]);
+    let lat2 = extract_number(&p2["latitude"]);
+    let lon2 = extract_number(&p2["longitude"]);
+    let v2 = extract_number(&p2["velocity"]);
 
     let mut delta_km = 0.0;
     let mut movement = false;
@@ -273,7 +188,7 @@ async fn iss_trend(State(st): State<AppState>)
     }
     let dt_sec = (t2 - t1).num_milliseconds() as f64 / 1000.0;
 
-    Ok(Json(Trend {
+    Ok(Json(IssTrend {
         movement,
         delta_km,
         dt_sec,
@@ -284,28 +199,12 @@ async fn iss_trend(State(st): State<AppState>)
     }))
 }
 
-fn num(v: &Value) -> Option<f64> {
-    if let Some(x) = v.as_f64() { return Some(x); }
-    if let Some(s) = v.as_str() { return s.parse::<f64>().ok(); }
-    None
-}
-
-fn haversine_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
-    let rlat1 = lat1.to_radians();
-    let rlat2 = lat2.to_radians();
-    let dlat = (lat2 - lat1).to_radians();
-    let dlon = (lon2 - lon1).to_radians();
-    let a = (dlat / 2.0).sin().powi(2) + rlat1.cos() * rlat2.cos() * (dlon / 2.0).sin().powi(2);
-    let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
-    6371.0 * c
-}
-
 /* ---------- OSDR ---------- */
 async fn osdr_sync(State(st): State<AppState>)
--> Result<Json<Value>, (StatusCode, String)> {
+-> Result<Json<OsdrSyncResult>, (StatusCode, String)> {
     let written = fetch_and_store_osdr(&st).await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(serde_json::json!({ "written": written })))
+    Ok(Json(OsdrSyncResult { written }))
 }
 
 async fn osdr_list(State(st): State<AppState>)
@@ -321,25 +220,24 @@ async fn osdr_list(State(st): State<AppState>)
     ).bind(limit).fetch_all(&st.pool).await
      .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    let out: Vec<Value> = rows.into_iter().map(|r| {
-        serde_json::json!({
-            "id": r.get::<i64,_>("id"),
-            "dataset_id": r.get::<Option<String>,_>("dataset_id"),
-            "title": r.get::<Option<String>,_>("title"),
-            "status": r.get::<Option<String>,_>("status"),
-            "updated_at": r.get::<Option<DateTime<Utc>>,_>("updated_at"),
-            "inserted_at": r.get::<DateTime<Utc>, _>("inserted_at"),
-            "raw": r.get::<Value,_>("raw"),
-        })
+    let out: Vec<OsdrItem> = rows.into_iter().map(|r| {
+        OsdrItem {
+            id: r.get::<i64,_>("id"),
+            dataset_id: r.get::<Option<String>,_>("dataset_id"),
+            title: r.get::<Option<String>,_>("title"),
+            status: r.get::<Option<String>,_>("status"),
+            updated_at: r.get::<Option<DateTime<Utc>>,_>("updated_at"),
+            inserted_at: r.get::<DateTime<Utc>, _>("inserted_at"),
+            raw: r.get::<Value,_>("raw"),
+        }
     }).collect();
 
     Ok(Json(serde_json::json!({ "items": out })))
 }
 
 /* ---------- Универсальная витрина space_cache ---------- */
-
 async fn space_latest(Path(src): Path<String>, State(st): State<AppState>)
--> Result<Json<Value>, (StatusCode, String)> {
+-> Result<Json<SpaceCacheLatest>, (StatusCode, String)> {
     let row = sqlx::query(
         "SELECT fetched_at, payload FROM space_cache
          WHERE source = $1 ORDER BY id DESC LIMIT 1"
@@ -349,26 +247,34 @@ async fn space_latest(Path(src): Path<String>, State(st): State<AppState>)
     if let Some(r) = row {
         let fetched_at: DateTime<Utc> = r.get("fetched_at");
         let payload: Value = r.get("payload");
-        return Ok(Json(serde_json::json!({ "source": src, "fetched_at": fetched_at, "payload": payload })));
+        return Ok(Json(SpaceCacheLatest {
+            source: src,
+            fetched_at,
+            payload,
+        }));
     }
-    Ok(Json(serde_json::json!({ "source": src, "message":"no data" })))
+    
+    Err((StatusCode::NOT_FOUND, format!("No data for source: {}", src)))
 }
 
 async fn space_refresh(Query(q): Query<HashMap<String,String>>, State(st): State<AppState>)
--> Result<Json<Value>, (StatusCode, String)> {
+-> Result<Json<SpaceCacheRefreshResult>, (StatusCode, String)> {
     let list = q.get("src").cloned().unwrap_or_else(|| "apod,neo,flr,cme,spacex".to_string());
     let mut done = Vec::new();
+    
     for s in list.split(',').map(|x| x.trim().to_lowercase()) {
-        match s.as_str() {
-            "apod"   => { let _ = fetch_apod(&st).await;       done.push("apod"); }
-            "neo"    => { let _ = fetch_neo_feed(&st).await;   done.push("neo"); }
-            "flr"    => { let _ = fetch_donki_flr(&st).await;  done.push("flr"); }
-            "cme"    => { let _ = fetch_donki_cme(&st).await;  done.push("cme"); }
-            "spacex" => { let _ = fetch_spacex_next(&st).await; done.push("spacex"); }
-            _ => {}
+        if let Some(source) = CacheSource::from_str(&s) {
+            match source {
+                CacheSource::Apod => { let _ = fetch_apod(&st).await; done.push("apod".to_string()); }
+                CacheSource::Neo => { let _ = fetch_neo_feed(&st).await; done.push("neo".to_string()); }
+                CacheSource::Flr => { let _ = fetch_donki_flr(&st).await; done.push("flr".to_string()); }
+                CacheSource::Cme => { let _ = fetch_donki_cme(&st).await; done.push("cme".to_string()); }
+                CacheSource::SpaceX => { let _ = fetch_spacex_next(&st).await; done.push("spacex".to_string()); }
+            }
         }
     }
-    Ok(Json(serde_json::json!({ "refreshed": done })))
+    
+    Ok(Json(SpaceCacheRefreshResult { refreshed: done }))
 }
 
 async fn latest_from_cache(pool: &PgPool, src: &str) -> Value {
@@ -380,11 +286,11 @@ async fn latest_from_cache(pool: &PgPool, src: &str) -> Value {
 }
 
 async fn space_summary(State(st): State<AppState>)
--> Result<Json<Value>, (StatusCode, String)> {
-    let apod   = latest_from_cache(&st.pool, "apod").await;
-    let neo    = latest_from_cache(&st.pool, "neo").await;
-    let flr    = latest_from_cache(&st.pool, "flr").await;
-    let cme    = latest_from_cache(&st.pool, "cme").await;
+-> Result<Json<SpaceSummary>, (StatusCode, String)> {
+    let apod = latest_from_cache(&st.pool, "apod").await;
+    let neo = latest_from_cache(&st.pool, "neo").await;
+    let flr = latest_from_cache(&st.pool, "flr").await;
+    let cme = latest_from_cache(&st.pool, "cme").await;
     let spacex = latest_from_cache(&st.pool, "spacex").await;
 
     let iss_last = sqlx::query("SELECT fetched_at,payload FROM iss_fetch_log ORDER BY id DESC LIMIT 1")
@@ -395,10 +301,15 @@ async fn space_summary(State(st): State<AppState>)
     let osdr_count: i64 = sqlx::query("SELECT count(*) AS c FROM osdr_items")
         .fetch_one(&st.pool).await.map(|r| r.get::<i64,_>("c")).unwrap_or(0);
 
-    Ok(Json(serde_json::json!({
-        "apod": apod, "neo": neo, "flr": flr, "cme": cme, "spacex": spacex,
-        "iss": iss_last, "osdr_count": osdr_count
-    })))
+    Ok(Json(SpaceSummary {
+        apod,
+        neo,
+        flr,
+        cme,
+        spacex,
+        iss: iss_last,
+        osdr_count,
+    }))
 }
 
 /* ---------- Фетчеры и запись ---------- */
@@ -409,17 +320,17 @@ async fn write_cache(pool: &PgPool, source: &str, payload: Value) -> anyhow::Res
     Ok(())
 }
 
-// APOD
+// APOD - обновляем использование config
 async fn fetch_apod(st: &AppState) -> anyhow::Result<()> {
     let url = "https://api.nasa.gov/planetary/apod";
     let client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
     let mut req = client.get(url).query(&[("thumbs","true")]);
-    if !st.nasa_key.is_empty() { req = req.query(&[("api_key",&st.nasa_key)]); }
+    if !st.config.nasa_api_key.is_empty() { req = req.query(&[("api_key",&st.config.nasa_api_key)]); }
     let json: Value = req.send().await?.json().await?;
     write_cache(&st.pool, "apod", json).await
 }
 
-// NeoWs
+// NeoWs - обновляем использование config
 async fn fetch_neo_feed(st: &AppState) -> anyhow::Result<()> {
     let today = Utc::now().date_naive();
     let start = today - chrono::Days::new(2);
@@ -429,7 +340,7 @@ async fn fetch_neo_feed(st: &AppState) -> anyhow::Result<()> {
         ("start_date", start.to_string()),
         ("end_date", today.to_string()),
     ]);
-    if !st.nasa_key.is_empty() { req = req.query(&[("api_key",&st.nasa_key)]); }
+    if !st.config.nasa_api_key.is_empty() { req = req.query(&[("api_key",&st.config.nasa_api_key)]); }
     let json: Value = req.send().await?.json().await?;
     write_cache(&st.pool, "neo", json).await
 }
@@ -440,21 +351,23 @@ async fn fetch_donki(st: &AppState) -> anyhow::Result<()> {
     let _ = fetch_donki_cme(st).await;
     Ok(())
 }
+
 async fn fetch_donki_flr(st: &AppState) -> anyhow::Result<()> {
     let (from,to) = last_days(5);
     let url = "https://api.nasa.gov/DONKI/FLR";
     let client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
     let mut req = client.get(url).query(&[("startDate",from),("endDate",to)]);
-    if !st.nasa_key.is_empty() { req = req.query(&[("api_key",&st.nasa_key)]); }
+    if !st.config.nasa_api_key.is_empty() { req = req.query(&[("api_key",&st.config.nasa_api_key)]); }
     let json: Value = req.send().await?.json().await?;
     write_cache(&st.pool, "flr", json).await
 }
+
 async fn fetch_donki_cme(st: &AppState) -> anyhow::Result<()> {
     let (from,to) = last_days(5);
     let url = "https://api.nasa.gov/DONKI/CME";
     let client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
     let mut req = client.get(url).query(&[("startDate",from),("endDate",to)]);
-    if !st.nasa_key.is_empty() { req = req.query(&[("api_key",&st.nasa_key)]); }
+    if !st.config.nasa_api_key.is_empty() { req = req.query(&[("api_key",&st.config.nasa_api_key)]); }
     let json: Value = req.send().await?.json().await?;
     write_cache(&st.pool, "cme", json).await
 }
@@ -498,6 +411,7 @@ fn t_pick(v: &Value, keys: &[&str]) -> Option<DateTime<Utc>> {
     }
     None
 }
+
 async fn fetch_and_store_iss(pool: &PgPool, url: &str) -> anyhow::Result<()> {
     let client = reqwest::Client::builder().timeout(Duration::from_secs(20)).build()?;
     let resp = client.get(url).send().await?;
@@ -506,9 +420,10 @@ async fn fetch_and_store_iss(pool: &PgPool, url: &str) -> anyhow::Result<()> {
         .bind(url).bind(json).execute(pool).await?;
     Ok(())
 }
+
 async fn fetch_and_store_osdr(st: &AppState) -> anyhow::Result<usize> {
     let client = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
-    let resp = client.get(&st.nasa_url).send().await?;
+    let resp = client.get(&st.config.nasa_api_url).send().await?; // Используем config
     if !resp.status().is_success() {
         anyhow::bail!("OSDR request status {}", resp.status());
     }
