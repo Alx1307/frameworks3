@@ -355,7 +355,7 @@
                             <i class="fas fa-home me-2"></i>Главная
                         </a>
                         <a class="nav-link nav-link-space" href="/astronomy" style="background: rgba(93, 63, 211, 0.2);">
-                            <i class="fas fa-calendar-alt me-2"></i>События
+                            <i class="fas fa-star me-2"></i>События
                         </a>
                         <a class="nav-link nav-link-space" href="/cms-admin">
                             <i class="fas fa-cogs me-2"></i>CMS
