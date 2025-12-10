@@ -44,9 +44,11 @@ const AppState = {
 
     const IssService = require('./src/application/services/IssService');
     const OsdrService = require('./src/application/services/OsdrService');
+    const AstronomyService = require('./src/application/services/AstronomyService');
     
     const issService = new IssService(issRepo, issClient);
     const osdrService = new OsdrService(osdrRepo, nasaClient, cacheRepo);
+    const astronomyService = new AstronomyService(cacheRepo);
 
     const SchedulerService = require('./src/application/services/SchedulerService');
     const scheduler = new SchedulerService(issService, osdrService, pool);
@@ -57,6 +59,7 @@ const AppState = {
       redisClient,
       issService,
       osdrService,
+      astronomyService,
       cacheRepo,
       issRepo
     };
@@ -83,21 +86,25 @@ async function createApp() {
   const OsdrHandler = require('./src/interfaces/handlers/osdr.handler');
   const SpaceHandler = require('./src/interfaces/handlers/space.handler');
   const HealthHandler = require('./src/interfaces/handlers/health.handler');
+  const AstronomyHandler = require('./src/interfaces/handlers/astronomy.handler');
   
   const issHandler = new IssHandler(state.issService);
   const osdrHandler = new OsdrHandler(state.osdrService);
   const spaceHandler = new SpaceHandler(state.osdrService, state.cacheRepo, state.issRepo);
   const healthHandler = new HealthHandler(state.pool, state.redisClient);
+  const astronomyHandler = new AstronomyHandler(state.astronomyService);
   
   const healthRouter = require('./src/interfaces/routes/health.routes')(healthHandler);
   const issRouter = require('./src/interfaces/routes/iss.routes')(issHandler);
   const osdrRouter = require('./src/interfaces/routes/osdr.routes')(osdrHandler);
   const spaceRouter = require('./src/interfaces/routes/space.routes')(spaceHandler);
+  const astronomyRouter = require('./src/interfaces/routes/astronomy.routes')(astronomyHandler);
   
   app.use('/api/health', healthRouter);
   app.use('/api/iss', issRouter);
   app.use('/api/osdr', osdrRouter);
   app.use('/api/space', spaceRouter);
+  app.use('/api/astronomy', astronomyRouter);
 
   app.use((req, res) => {
     res.status(404).json({
@@ -123,6 +130,7 @@ if (require.main === module) {
       console.log(`ISS latest: http://localhost:${PORT}/api/iss/latest`);
       console.log(`OSDR list: http://localhost:${PORT}/api/osdr/list`);
       console.log(`Space summary: http://localhost:${PORT}/api/space/summary`);
+      console.log(`Astronomy events: http://localhost:${PORT}/api/astronomy/events?lat=55.7558&lon=37.6176&days=7`);
     });
   }).catch(err => {
     console.error('Failed to start application:', err);

@@ -12,6 +12,8 @@ Route::get('/osdr-new', [\App\Http\Controllers\OsdrController::class, 'newIndex'
 Route::get('/iss-new', [\App\Http\Controllers\IssController::class, 'newIndex']);
 
 Route::get('/astronomy', [\App\Http\Controllers\AstroController::class, 'index']);
+Route::get('/api/astronomy/events', [\App\Http\Controllers\AstroController::class, 'events']);
+
 Route::get('/cms-admin', [\App\Http\Controllers\CmsController::class, 'admin']);
 
 // Прокси к rust_iss

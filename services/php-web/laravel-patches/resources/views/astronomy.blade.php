@@ -13,11 +13,14 @@
             --space-purple: #5d3fd3;
             --neon-blue: #00d4ff;
             --star-glow: #ffd700;
+            --table-bg: rgba(15, 30, 50, 0.8);
+            --table-row: rgba(25, 45, 70, 0.5);
+            --table-row-alt: rgba(20, 40, 65, 0.5);
         }
         
         body {
             background: linear-gradient(135deg, var(--space-dark) 0%, var(--space-blue) 50%, #1a1a2e 100%);
-            color: white;
+            color: #e0e0e0;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
@@ -45,7 +48,7 @@
         }
         
         .space-header {
-            background: rgba(10, 25, 47, 0.9);
+            background: rgba(10, 25, 47, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(93, 63, 211, 0.3);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
@@ -135,7 +138,7 @@
         }
         
         .page-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             text-align: left;
             margin-bottom: 40px;
             font-size: 1.1rem;
@@ -194,33 +197,68 @@
             color: white;
         }
         
-        .table-astro {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            overflow: hidden;
+        .astro-table-container {
+            background: rgba(15, 30, 50, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(93, 63, 211, 0.3) !important;
+            border-radius: 15px !important;
+            overflow: hidden !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+            margin-top: 20px;
         }
         
-        .table-astro thead th {
-            background: rgba(93, 63, 211, 0.2);
-            color: var(--neon-blue);
-            border-bottom: 2px solid rgba(93, 63, 211, 0.3);
-            font-weight: 600;
-            text-align: left;
+        .astro-table {
+            margin: 0 !important;
+            color: #ffffff !important;
+            background-color: transparent !important;
+            border-collapse: collapse !important;
+            width: 100% !important;
         }
         
-        .table-astro tbody tr {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.2s ease;
+        .astro-table thead {
+            background: rgba(93, 63, 211, 0.2) !important;
         }
         
-        .table-astro tbody tr:hover {
-            background: rgba(0, 212, 255, 0.1);
+        .astro-table thead th {
+            color: #00d4ff !important;
+            border-bottom: 2px solid rgba(93, 63, 211, 0.4) !important;
+            font-weight: 600 !important;
+            font-family: 'Orbitron', sans-serif !important;
+            padding: 15px !important;
+            background-color: rgba(93, 63, 211, 0.15) !important;
+            text-align: left !important;
         }
         
-        .table-astro tbody td {
-            color: rgba(255, 255, 255, 0.9);
-            vertical-align: middle;
-            text-align: left;
+        .astro-table tbody tr {
+            background-color: rgba(25, 45, 70, 0.6) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .astro-table tbody tr:nth-child(even) {
+            background-color: rgba(20, 40, 65, 0.6) !important;
+        }
+        
+        .astro-table tbody tr:hover {
+            background-color: rgba(0, 212, 255, 0.2) !important;
+        }
+        
+        .astro-table tbody td {
+            color: #ffffff !important;
+            vertical-align: middle !important;
+            padding: 12px 15px !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .table {
+            --bs-table-bg: transparent !important;
+            --bs-table-striped-bg: rgba(25, 45, 70, 0.6) !important;
+            --bs-table-striped-color: #ffffff !important;
+            --bs-table-active-bg: rgba(0, 212, 255, 0.2) !important;
+            --bs-table-active-color: #ffffff !important;
+            --bs-table-hover-bg: rgba(0, 212, 255, 0.2) !important;
+            --bs-table-hover-color: #ffffff !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
         
         .json-panel {
@@ -314,6 +352,69 @@
             margin-right: 10px;
         }
         
+        .event-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-eclipse {
+            background: linear-gradient(90deg, #dc3545, #b02a37);
+        }
+        
+        .badge-transit {
+            background: linear-gradient(90deg, #ffc107, #e0a800);
+            color: #212529 !important;
+        }
+        
+        .badge-meteor {
+            background: linear-gradient(90deg, #198754, #157347);
+        }
+        
+        .badge-flyby {
+            background: linear-gradient(90deg, #0dcaf0, #0aa2c0);
+        }
+        
+        .badge-planetary {
+            background: linear-gradient(90deg, #6f42c1, #5a3d9c);
+        }
+
+        .badge-moon {
+            background: linear-gradient(90deg, #6c757d, #495057);
+        }
+
+        .badge-phase {
+            background: linear-gradient(90deg, #0dcaf0, #0aa2c0);
+        }
+
+        .badge-sun-event {
+            background: linear-gradient(90deg, #ff6b00, #ffa500);
+        }
+
+        .badge-moon-phase {
+            background: linear-gradient(90deg, #6c757d, #495057);
+            color: white !important;
+        }
+
+        .badge-sun-position {
+            background: linear-gradient(90deg, #ffd700, #ffa500);
+            color: #212529 !important;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+            opacity: 0.5;
+        }
+        
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -323,13 +424,25 @@
                 display: none;
             }
             
-            .table-responsive {
-                font-size: 0.9rem;
+            .astro-table-container {
+                font-size: 0.85rem;
+                border-radius: 10px;
+            }
+            
+            .astro-table thead th,
+            .astro-table tbody td {
+                padding: 10px 8px;
             }
             
             .page-subtitle {
                 font-size: 1rem;
             }
+            
+            .astro-table th:nth-child(1) { width: 50px; }
+            .astro-table th:nth-child(2) { width: 180px; }
+            .astro-table th:nth-child(3) { width: 120px; }
+            .astro-table th:nth-child(4) { width: 150px; }
+            .astro-table th:nth-child(5) { width: 200px; }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap" rel="stylesheet">
@@ -383,13 +496,13 @@
             <p class="page-subtitle">
                 Получайте информацию о предстоящих затмениях, пролётах спутников, 
                 метеорных потоках и других космических явлениях. Данные предоставляются 
-                через AstronomyAPI.
+                через AstronomyAPI и альтернативные API.
             </p>
             
             <div class="events-card">
                 <div class="events-header">
                     <h5 class="events-title">Фильтр событий</h5>
-                    <p class="text-muted mb-0">Укажите координаты и период для получения событий</p>
+                    <p class="text-info mb-0">Укажите координаты и период для получения событий</p>
                 </div>
                 
                 <form id="astroForm" class="row g-3">
@@ -419,31 +532,33 @@
             <div class="events-card">
                 <div class="events-header">
                     <h5 class="events-title">Результаты</h5>
-                    <p class="text-muted mb-0">Найдено событий: <span id="eventsCount">0</span></p>
+                    <p class="text-info mb-0">Найдено событий: <span id="eventsCount">0</span></p>
                 </div>
                 
-                <div class="table-responsive">
-                    <table class="table table-astro">
-                        <thead>
-                            <tr>
-                                <th width="50">#</th>
-                                <th>Небесное тело</th>
-                                <th>Тип события</th>
-                                <th>Время (UTC)</th>
-                                <th>Детали</th>
-                            </tr>
-                        </thead>
-                        <tbody id="astroBody">
-                            <tr>
-                                <td colspan="5" class="text-center py-4">
-                                    <div class="text-muted">
-                                        <i class="fas fa-search me-2"></i>
-                                        Укажите параметры и нажмите "Показать события"
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="astro-table-container">
+                    <div class="table-responsive">
+                        <table class="table astro-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">#</th>
+                                    <th>Небесное тело</th>
+                                    <th>Тип события</th>
+                                    <th>Время (UTC)</th>
+                                    <th>Детали</th>
+                                </tr>
+                            </thead>
+                            <tbody id="astroBody">
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="text-info">
+                                            <i class="fas fa-search me-2"></i>
+                                            Укажите параметры и нажмите "Показать события"
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <div class="json-panel">
@@ -543,7 +658,7 @@
             `;
             
             try {
-                const url = '/api/astro/events?' + new URLSearchParams(q).toString();
+                const url = '/api/astronomy/events?' + new URLSearchParams(q).toString();
                 const response = await fetch(url);
                 
                 if (!response.ok) {
@@ -558,10 +673,16 @@
                 if (!rows.length) {
                     body.innerHTML = `
                         <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <div class="text-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    Событий не найдено для указанных параметров
+                            <td colspan="5" class="text-center py-5">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <h4>Событий не найдено</h4>
+                                    <p>Для указанных параметров не найдено астрономических событий.</p>
+                                    <button class="btn btn-astro mt-2" onclick="document.getElementById('astroForm').dispatchEvent(new Event('submit'))">
+                                        <i class="fas fa-sync-alt me-2"></i>Попробовать снова
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -574,13 +695,13 @@
                 
                 body.innerHTML = rows.slice(0, 200).map((row, index) => `
                     <tr>
-                        <td><span class="badge bg-primary">${index + 1}</span></td>
+                        <td><span class="badge bg-dark" style="font-family: 'Orbitron';">${index + 1}</span></td>
                         <td>
                             <strong>${row.name || 'Неизвестно'}</strong>
-                            ${row.name ? getBodyIcon(row.name) : ''}
+                            ${getBodyIcon(row.name)}
                         </td>
                         <td>
-                            <span class="badge ${getEventTypeClass(row.type)}">
+                            <span class="event-badge ${getEventTypeClass(row.type)}">
                                 ${row.type || 'Не указан'}
                             </span>
                         </td>
@@ -588,10 +709,22 @@
                             <code class="text-info">${formatDateTime(row.when) || '—'}</code>
                         </td>
                         <td>
-                            <small class="text-muted">${row.extra || '—'}</small>
+                            <small class="text-info">${row.extra || '—'}</small>
                         </td>
                     </tr>
                 `).join('');
+                
+                const tableRows = document.querySelectorAll('#astroBody tr');
+                tableRows.forEach((row, index) => {
+                    row.style.opacity = "0";
+                    row.style.transform = "translateY(20px)";
+                    row.style.transition = `opacity 0.3s ease ${index * 0.05}s, transform 0.3s ease ${index * 0.05}s`;
+                    
+                    setTimeout(() => {
+                        row.style.opacity = "1";
+                        row.style.transform = "translateY(0)";
+                    }, 50);
+                });
                 
             } catch(error) {
                 console.error('Ошибка загрузки:', error);
@@ -610,6 +743,7 @@
         }
         
         function getBodyIcon(bodyName) {
+            if (!bodyName) return '';
             const bodyLower = bodyName.toLowerCase();
             if (bodyLower.includes('sun') || bodyLower.includes('солн')) return '<i class="fas fa-sun ms-2 text-warning"></i>';
             if (bodyLower.includes('moon') || bodyLower.includes('лун')) return '<i class="fas fa-moon ms-2 text-light"></i>';
@@ -621,11 +755,18 @@
         
         function getEventTypeClass(type) {
             const typeLower = (type || '').toLowerCase();
-            if (typeLower.includes('eclipse') || typeLower.includes('затмен')) return 'bg-danger';
-            if (typeLower.includes('transit') || typeLower.includes('транзит')) return 'bg-warning text-dark';
-            if (typeLower.includes('meteor') || typeLower.includes('метеор')) return 'bg-success';
-            if (typeLower.includes('flyby') || typeLower.includes('пролёт')) return 'bg-info';
-            return 'bg-secondary';
+            if (typeLower.includes('eclipse') || typeLower.includes('затмен')) return 'badge-eclipse';
+            if (typeLower.includes('sun_event') || typeLower.includes('sunrise') || typeLower.includes('sunset')) 
+                return 'badge-sun-event';
+            if (typeLower.includes('sun_position') || typeLower.includes('solar_noon')) 
+                return 'badge-sun-position';
+            if (typeLower.includes('moon') || typeLower.includes('лун') || typeLower.includes('phase') || typeLower.includes('фаза')) 
+                return 'badge-moon-phase';
+            if (typeLower.includes('transit') || typeLower.includes('транзит')) return 'badge-transit';
+            if (typeLower.includes('meteor') || typeLower.includes('метеор')) return 'badge-meteor';
+            if (typeLower.includes('flyby') || typeLower.includes('пролёт')) return 'badge-flyby';
+            if (typeLower.includes('planet') || typeLower.includes('планет')) return 'badge-planetary';
+            return 'badge-secondary';
         }
         
         function formatDateTime(dateTimeStr) {
@@ -665,23 +806,15 @@
                 loadEvents(params);
             });
             
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = "1";
-                        entry.target.style.transform = "translateY(0)";
-                    }
-                });
-            }, { threshold: 0.1 });
-            
-            setTimeout(() => {
-                document.querySelectorAll('#astroBody tr').forEach(row => {
-                    row.style.opacity = "0";
-                    row.style.transform = "translateY(10px)";
-                    row.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-                    observer.observe(row);
-                });
-            }, 500);
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link-space').forEach(link => {
+                if (currentPath.includes('astronomy')) {
+                    link.style.background = '';
+                }
+                if (link.getAttribute('href') === '/astronomy') {
+                    link.style.background = 'rgba(93, 63, 211, 0.2)';
+                }
+            });
         });
     </script>
     
