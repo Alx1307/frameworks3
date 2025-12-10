@@ -1,10 +1,12 @@
 networks:
   backend:
+    driver: bridge
 
 volumes:
   pgdata:
   appdata:
   csvdata:
+  redisdata:
 
 services:
   db:
@@ -27,6 +29,23 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redisdata:/data
+    networks:
+      - backend
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
   rust_iss:
     build:
       context: ./services/rust-iss
@@ -44,6 +63,39 @@ services:
       - backend
     ports:
       - "8081:3000"
+
+  node_backend:
+    build:
+      context: ./services/node-backend
+    container_name: node_backend
+    environment:
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:-postgres://monouser:monopass@db:5432/monolith}
+      REDIS_URL: redis://redis:6379
+      NASA_API_KEY: ${NASA_API_KEY:-}
+      NASA_API_URL: ${NASA_API_URL:-https://visualization.osdr.nasa.gov/biodata/api/v2/datasets/?format=json}
+      WHERE_ISS_URL: ${WHERE_ISS_URL:-https://api.wheretheiss.at/v1/satellites/25544}
+      FETCH_EVERY_SECONDS: ${FETCH_EVERY_SECONDS:-600}
+      ISS_EVERY_SECONDS: ${ISS_EVERY_SECONDS:-120}
+      APOD_EVERY_SECONDS: ${APOD_EVERY_SECONDS:-43200}
+      NEO_EVERY_SECONDS: ${NEO_EVERY_SECONDS:-7200}
+      DONKI_EVERY_SECONDS: ${DONKI_EVERY_SECONDS:-3600}
+      SPACEX_EVERY_SECONDS: ${SPACEX_EVERY_SECONDS:-3600}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-300}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    ports:
+      - "8082:3001"
+    volumes:
+      - ./services/node-backend:/app
+    restart: unless-stopped
 
   php:
     build:
@@ -65,10 +117,14 @@ services:
       DB_DATABASE: monolith
       DB_USERNAME: monouser
       DB_PASSWORD: monopass
+      BACKEND_API_URL: http://node_backend:3001/api
+      BACKEND_HEALTH_CHECK: http://node_backend:3001/api/health
     depends_on:
       db:
         condition: service_healthy
       rust_iss:
+        condition: service_started
+      node_backend:
         condition: service_started
     networks:
       - backend
@@ -81,6 +137,7 @@ services:
     container_name: web_nginx
     depends_on:
       - php
+      - node_backend
     volumes:
       - appdata:/var/www/html:ro
       - ./services/php-web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
