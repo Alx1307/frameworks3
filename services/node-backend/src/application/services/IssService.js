@@ -74,6 +74,32 @@ class IssService {
       to_lon: lon1
     };
   }
+
+  async getHistory(limit = 50) {
+    try {
+        const positions = await this.issRepository.getRecentPositions(limit);
+        
+        return {
+            success: true,
+            count: positions.length,
+            points: positions.map(pos => ({
+                lat: pos.payload.latitude,
+                lon: pos.payload.longitude,
+                altitude: pos.payload.altitude,
+                velocity: pos.payload.velocity,
+                timestamp: pos.payload.timestamp,
+                fetched_at: pos.fetched_at
+            }))
+        };
+    } catch (error) {
+        console.error('Ошибка при загрузке истории МКС:', error);
+        return {
+            success: false,
+            count: 0,
+            points: []
+        };
+    }
+  }
   
   calculateHaversine(lat1, lon1, lat2, lon2) {
     const R = 6371;

@@ -1,26 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IssController;
 
 Route::get('/', fn() => view('welcome'));
 
-// Панели
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
 Route::get('/dashboard-minimal', [\App\Http\Controllers\DashboardController::class, 'minimal']);
 Route::get('/osdr', [\App\Http\Controllers\OsdrController::class, 'index']);
 Route::get('/osdr-new', [\App\Http\Controllers\OsdrController::class, 'newIndex'])->name('osdr.new');
-Route::get('/iss-new', [\App\Http\Controllers\IssController::class, 'newIndex']);
 
 Route::get('/astronomy', [\App\Http\Controllers\AstroController::class, 'index']);
 Route::get('/api/astronomy/events', [\App\Http\Controllers\AstroController::class, 'events']);
 
 Route::get('/cms-admin', [\App\Http\Controllers\CmsController::class, 'admin']);
 
-// Прокси к rust_iss
 Route::get('/api/iss/last',  [\App\Http\Controllers\ProxyController::class, 'last']);
 Route::get('/api/iss/trend', [\App\Http\Controllers\ProxyController::class, 'trend']);
+Route::get('/iss-new', [IssController::class, 'newIndex'])->name('iss.new');
+Route::get('/api/iss/history', [IssController::class, 'apiHistory'])->name('iss.api.history');
 
-// JWST галерея (JSON)
+Route::prefix('api/iss')->group(function () {
+    Route::get('/latest', [IssController::class, 'apiLatest'])->name('iss.api.latest');
+    Route::get('/trend', [IssController::class, 'apiTrend'])->name('iss.api.trend');
+    Route::post('/trigger-fetch', [IssController::class, 'apiTriggerFetch'])->name('iss.api.trigger-fetch');
+});
+
 Route::get('/api/jwst/feed', [\App\Http\Controllers\DashboardController::class, 'jwstFeed']);
 Route::get("/api/astro/events", [\App\Http\Controllers\AstroController::class, "events"]);
 

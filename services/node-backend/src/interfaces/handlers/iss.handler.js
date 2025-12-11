@@ -33,6 +33,14 @@ class IssHandler {
     res.json(trend);
   });
 
+  getHistory = asyncHandler(async (req, res) => {
+    const { limit = 50 } = req.query;
+    
+    const history = await this.issService.getHistory(parseInt(limit));
+    
+    res.json(history);
+  });
+
   triggerFetch = asyncHandler(async (req, res) => {
     const position = await this.issService.fetchAndStorePosition();
     

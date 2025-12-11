@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>МКС - Международная Космическая Станция</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -176,6 +177,7 @@
         .stat-card:hover {
             border-color: var(--neon-blue);
             transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
         }
         
         .stat-label {
@@ -429,8 +431,8 @@
                     <div class="stat-card">
                         <div class="stat-label">Скорость МКС</div>
                         <div class="stat-value">
-                            @if(!empty($last['payload']['velocity']))
-                                {{ number_format($last['payload']['velocity'], 0, '', ' ') }}
+                            @if(!empty($initialData['payload']['velocity']))
+                                {{ number_format($initialData['payload']['velocity'], 0, '', ' ') }}
                             @else
                                 —
                             @endif
@@ -442,8 +444,8 @@
                     <div class="stat-card">
                         <div class="stat-label">Высота орбиты</div>
                         <div class="stat-value">
-                            @if(!empty($last['payload']['altitude']))
-                                {{ number_format($last['payload']['altitude'], 0, '', ' ') }}
+                            @if(!empty($initialData['payload']['altitude']))
+                                {{ number_format($initialData['payload']['altitude'], 0, '', ' ') }}
                             @else
                                 —
                             @endif
@@ -455,8 +457,8 @@
                     <div class="stat-card">
                         <div class="stat-label">Широта</div>
                         <div class="stat-value">
-                            @if(!empty($last['payload']['latitude']))
-                                {{ number_format($last['payload']['latitude'], 2) }}
+                            @if(!empty($initialData['payload']['latitude']))
+                                {{ number_format($initialData['payload']['latitude'], 2) }}
                             @else
                                 —
                             @endif
@@ -468,8 +470,8 @@
                     <div class="stat-card">
                         <div class="stat-label">Долгота</div>
                         <div class="stat-value">
-                            @if(!empty($last['payload']['longitude']))
-                                {{ number_format($last['payload']['longitude'], 2) }}
+                            @if(!empty($initialData['payload']['longitude']))
+                                {{ number_format($initialData['payload']['longitude'], 2) }}
                             @else
                                 —
                             @endif
@@ -486,27 +488,27 @@
                             <i class="fas fa-satellite me-2"></i>Текущие параметры МКС
                         </div>
                         <div class="card-body">
-                            @if(!empty($last['payload']))
+                            @if(!empty($initialData['payload']))
                             <ul class="data-list">
                                 <li>
                                     <span class="label">Широта:</span>
-                                    <span class="value">{{ $last['payload']['latitude'] ?? '—' }}</span>
+                                    <span class="value">{{ $initialData['payload']['latitude'] ?? '—' }}</span>
                                 </li>
                                 <li>
                                     <span class="label">Долгота:</span>
-                                    <span class="value">{{ $last['payload']['longitude'] ?? '—' }}</span>
+                                    <span class="value">{{ $initialData['payload']['longitude'] ?? '—' }}</span>
                                 </li>
                                 <li>
                                     <span class="label">Высота:</span>
-                                    <span class="value">{{ $last['payload']['altitude'] ?? '—' }} км</span>
+                                    <span class="value">{{ $initialData['payload']['altitude'] ?? '—' }} км</span>
                                 </li>
                                 <li>
                                     <span class="label">Скорость:</span>
-                                    <span class="value">{{ $last['payload']['velocity'] ?? '—' }} км/ч</span>
+                                    <span class="value">{{ $initialData['payload']['velocity'] ?? '—' }} км/ч</span>
                                 </li>
                                 <li>
                                     <span class="label">Время получения:</span>
-                                    <span class="value">{{ $last['fetched_at'] ?? '—' }}</span>
+                                    <span class="value">{{ $initialData['fetched_at'] ?? '—' }}</span>
                                 </li>
                             </ul>
                             @else
@@ -518,12 +520,6 @@
                                 <p>Нет доступных данных о текущем положении МКС.</p>
                             </div>
                             @endif
-                            <div class="mt-4">
-                                <small class="text-muted">
-                                    <i class="fas fa-server me-1"></i>
-                                    Данные обновляются в реальном времени
-                                </small>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -534,29 +530,35 @@
                             <i class="fas fa-chart-line me-2"></i>Тренд движения МКС
                         </div>
                         <div class="card-body">
-                            @if(!empty($trend))
+                            @if(!empty($trendData))
                             <ul class="data-list">
                                 <li>
                                     <span class="label">Движение:</span>
-                                    <span class="value {{ ($trend['movement'] ?? false) ? 'text-success' : 'text-warning' }}">
-                                        {{ ($trend['movement'] ?? false) ? 'Активно' : 'Отсутствует' }}
+                                    <span class="value {{ ($trendData['movement'] ?? false) ? 'text-success' : 'text-warning' }}">
+                                        {{ ($trendData['movement'] ?? false) ? 'Активно' : 'Отсутствует' }}
                                     </span>
                                 </li>
                                 <li>
                                     <span class="label">Смещение:</span>
-                                    <span class="value">{{ number_format($trend['delta_km'] ?? 0, 3, '.', ' ') }} км</span>
+                                    <span class="value">{{ number_format($trendData['delta_km'] ?? 0, 3, '.', ' ') }} км</span>
                                 </li>
                                 <li>
                                     <span class="label">Интервал:</span>
-                                    <span class="value">{{ $trend['dt_sec'] ?? 0 }} сек</span>
+                                    <span class="value">{{ $trendData['dt_sec'] ?? 0 }} сек</span>
                                 </li>
                                 <li>
                                     <span class="label">Скорость (тренд):</span>
-                                    <span class="value">{{ $trend['velocity_kmh'] ?? '—' }} км/ч</span>
+                                    <span class="value">{{ $trendData['velocity_kmh'] ?? '—' }} км/ч</span>
                                 </li>
                                 <li>
-                                    <span class="label">Количество точек:</span>
-                                    <span class="value">{{ count($trend['points'] ?? []) }}</span>
+                                    <span class="label">Направление:</span>
+                                    <span class="value">
+                                        @if(!empty($trendData['from_lat']) && !empty($trendData['to_lat']))
+                                            {{ $trendData['from_lat'] < $trendData['to_lat'] ? 'С юга на север' : 'С севера на юг' }}
+                                        @else
+                                            —
+                                        @endif
+                                    </span>
                                 </li>
                             </ul>
                             @else
@@ -568,12 +570,6 @@
                                 <p>Нет данных о движении МКС за период.</p>
                             </div>
                             @endif
-                            <div class="mt-4">
-                                <small class="text-muted">
-                                    <i class="fas fa-history me-1"></i>
-                                    Анализ движения за последний час
-                                </small>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -595,13 +591,6 @@
                             <div class="chart-container">
                                 <canvas id="altitudeChart"></canvas>
                             </div>
-                            
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Графики обновляются автоматически каждые 30 секунд
-                                </small>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -618,12 +607,6 @@
                                     <i class="fas fa-sync-alt me-2"></i>
                                     Обновить данные
                                 </button>
-                            </div>
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Карта показывает текущее положение МКС. Данные обновляются автоматически.
-                                </small>
                             </div>
                         </div>
                     </div>
@@ -652,6 +635,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        const ISS_CONFIG = {
+            endpoints: {
+                latest: '/api/iss/latest',
+                trend: '/api/iss/trend',
+                fetch: '/api/iss/fetch',
+                history: '/api/iss/history'
+            },
+            initialData: @json($initialData ?? []),
+            trendData: @json($trendData ?? []),
+            nodeBackendAvailable: @json($nodeBackendAvailable ?? false)
+        };
+        
+        @if(isset($apiEndpoints) && is_array($apiEndpoints))
+            ISS_CONFIG.endpoints = @json($apiEndpoints);
+        @endif
+        
+        let map, marker, trail;
+        let speedChart, altitudeChart;
+        let isUpdating = false;
+        
         function createStars() {
             const starsContainer = document.getElementById('stars');
             const starCount = 150;
@@ -671,11 +674,17 @@
             }
         }
         
-        let map, marker, trail;
-        let speedChart, altitudeChart;
+        function formatNumber(num, decimals = 0) {
+            if (num === null || num === undefined || isNaN(num)) return '—';
+            const formatted = parseFloat(num).toFixed(decimals);
+            if (decimals === 0) {
+                return formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            }
+            return formatted;
+        }
         
         function initISSMap() {
-            const lastData = @json($last['payload'] ?? []);
+            const lastData = ISS_CONFIG.initialData.payload || {};
             let lat = Number(lastData.latitude || 0);
             let lon = Number(lastData.longitude || 0);
             
@@ -704,13 +713,6 @@
                     Высота: ${lastData.altitude || '—'} км<br>
                     Скорость: ${lastData.velocity || '—'} км/ч
                 `);
-            
-            trail = L.polyline([], {
-                weight: 2,
-                color: '#00d4ff',
-                opacity: 0.6,
-                dashArray: '5, 5'
-            }).addTo(map);
         }
         
         function initCharts() {
@@ -728,28 +730,19 @@
                         backgroundColor: 'rgba(0, 212, 255, 0.1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        pointRadius: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: {
-                            display: false
-                        },
+                        x: { display: false },
                         y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
                         }
                     }
                 }
@@ -766,63 +759,404 @@
                         backgroundColor: 'rgba(93, 63, 211, 0.1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        pointRadius: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: {
-                            display: false
-                        },
+                        x: { display: false },
                         y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
                         }
                     }
                 }
             });
+            
+            if (ISS_CONFIG.trendData && ISS_CONFIG.trendData.points) {
+                updateCharts(ISS_CONFIG.trendData.points);
+            }
+        }
+        
+        function updateCharts(points) {
+            if (!points || points.length === 0) return;
+            
+            const labels = points.map((p, i) => {
+                if (p.timestamp) {
+                    const date = new Date(p.timestamp * 1000);
+                    return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                }
+                return `Точка ${i + 1}`;
+            });
+            
+            const speeds = points.map(p => p.velocity || p.speed || 0);
+            const altitudes = points.map(p => p.altitude || 0);
+            
+            const maxPoints = 50;
+            if (points.length > maxPoints) {
+                const step = Math.ceil(points.length / maxPoints);
+                speedChart.data.labels = labels.filter((_, i) => i % step === 0);
+                speedChart.data.datasets[0].data = speeds.filter((_, i) => i % step === 0);
+                altitudeChart.data.labels = labels.filter((_, i) => i % step === 0);
+                altitudeChart.data.datasets[0].data = altitudes.filter((_, i) => i % step === 0);
+            } else {
+                speedChart.data.labels = labels;
+                speedChart.data.datasets[0].data = speeds;
+                altitudeChart.data.labels = labels;
+                altitudeChart.data.datasets[0].data = altitudes;
+            }
+            
+            speedChart.update('none');
+            altitudeChart.update('none');
         }
         
         async function loadISSTrend() {
+            if (isUpdating) return;
+            isUpdating = true;
+            
             try {
-                const response = await fetch('/api/iss/trend?limit=60');
-                const data = await response.json();
                 
-                const points = data.points || [];
+                const [latestResponse, trendResponse, historyResponse] = await Promise.all([
+                    fetch(ISS_CONFIG.endpoints.latest),
+                    fetch(ISS_CONFIG.endpoints.trend),
+                    fetch(`${ISS_CONFIG.endpoints.history}?limit=60`)
+                ]);
                 
-                if (points.length > 0) {
-                    const trailPoints = points.map(p => [p.lat, p.lon]);
-                    trail.setLatLngs(trailPoints);
-                    
-                    const lastPoint = points[points.length - 1];
-                    marker.setLatLng([lastPoint.lat, lastPoint.lon]);
-                    map.setView([lastPoint.lat, lastPoint.lon], 3);
-                    
-                    const labels = points.map(p => new Date(p.at).toLocaleTimeString());
-                    const speeds = points.map(p => p.velocity || 0);
-                    const altitudes = points.map(p => p.altitude || 0);
-                    
-                    speedChart.data.labels = labels;
-                    speedChart.data.datasets[0].data = speeds;
-                    speedChart.update();
-                    
-                    altitudeChart.data.labels = labels;
-                    altitudeChart.data.datasets[0].data = altitudes;
-                    altitudeChart.update();
+                if (!latestResponse.ok) {
+                    throw new Error(`HTTP ошибка latest: ${latestResponse.status}`);
                 }
+                
+                const latestData = await latestResponse.json();
+                const trendData = trendResponse.ok ? await trendResponse.json() : null;
+                const historyData = historyResponse.ok ? await historyResponse.json() : null;
+                
+                if (!latestData || !latestData.payload) {
+                    throw new Error('Нет данных payload в ответе');
+                }
+                
+                updateStats(latestData);
+                
+                updateLatestData(latestData);
+                
+                updateTrendData(trendData, historyData);
+                
+                updateMap(latestData, historyData);
+                
+                updateChartsFromHistory(historyData, latestData);
+                
+                updateLastUpdateTime();
+                
             } catch (error) {
-                console.error('Ошибка загрузки данных МКС:', error);
+                console.error('Ошибка загрузки данных МКС:', error);                
+            } finally {
+                isUpdating = false;
+            }
+        }
+
+        function updateStats(latestData) {
+            if (!latestData.payload) return;
+            
+            const payload = latestData.payload;
+            
+            const stats = {
+                'statVelocity': payload.velocity,
+                'statAltitude': payload.altitude, 
+                'statLatitude': payload.latitude,
+                'statLongitude': payload.longitude
+            };
+            
+            Object.entries(stats).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value ? formatNumber(value, id.includes('itude') ? 2 : 0) : '—';
+                }
+            });
+        }
+
+        function updateLatestData(latestData) {
+            if (!latestData.payload) return;
+            
+            const latestList = document.getElementById('latestDataList');
+            if (!latestList) return;
+            
+            const payload = latestData.payload;
+            const fetchedTime = latestData.fetched_at 
+                ? new Date(latestData.fetched_at).toLocaleString('ru-RU') 
+                : new Date().toLocaleString('ru-RU');
+            
+            latestList.innerHTML = `
+                <li>
+                    <span class="label">Широта:</span>
+                    <span class="value">${payload.latitude ? formatNumber(payload.latitude, 6) : '—'}</span>
+                </li>
+                <li>
+                    <span class="label">Долгота:</span>
+                    <span class="value">${payload.longitude ? formatNumber(payload.longitude, 6) : '—'}</span>
+                </li>
+                <li>
+                    <span class="label">Высота:</span>
+                    <span class="value">${payload.altitude ? formatNumber(payload.altitude, 1) + ' км' : '—'}</span>
+                </li>
+                <li>
+                    <span class="label">Скорость:</span>
+                    <span class="value">${payload.velocity ? formatNumber(payload.velocity, 0) + ' км/ч' : '—'}</span>
+                </li>
+                <li>
+                    <span class="label">Время получения:</span>
+                    <span class="value">${fetchedTime}</span>
+                </li>
+            `;
+        }
+
+        function updateTrendData(trendData, historyData) {
+            const trendList = document.getElementById('trendDataList');
+            if (!trendList) return;
+            
+            const historyPoints = historyData?.points || [];
+            const hasHistory = historyPoints.length > 0;
+            
+            if (trendData) {
+                trendList.innerHTML = `
+                    <li>
+                        <span class="label">Движение:</span>
+                        <span class="value ${trendData.movement ? 'text-success' : 'text-warning'}">
+                            ${trendData.movement ? 'Активно' : 'Отсутствует'}
+                        </span>
+                    </li>
+                    <li>
+                        <span class="label">Смещение:</span>
+                        <span class="value">${formatNumber(trendData.delta_km || 0, 3)} км</span>
+                    </li>
+                    <li>
+                        <span class="label">Интервал:</span>
+                        <span class="value">${formatNumber(trendData.dt_sec || 0, 1)} сек</span>
+                    </li>
+                    <li>
+                        <span class="label">Скорость (тренд):</span>
+                        <span class="value">${trendData.velocity_kmh ? formatNumber(trendData.velocity_kmh, 0) + ' км/ч' : '—'}</span>
+                    </li>
+                    <li>
+                        <span class="label">Исторических точек:</span>
+                        <span class="value ${hasHistory ? 'text-success' : 'text-warning'}">
+                            ${hasHistory ? historyPoints.length + ' шт' : 'Нет данных'}
+                        </span>
+                    </li>
+                `;
+            } else if (hasHistory) {
+                calculateTrendFromHistory(historyPoints, trendList);
+            } else {
+                trendList.innerHTML = `
+                    <li>
+                        <span class="label">Статус:</span>
+                        <span class="value text-warning">Данные тренда недоступны</span>
+                    </li>
+                `;
+            }
+        }
+
+        function calculateTrendFromHistory(points, trendList) {
+            if (points.length < 2) return;
+            
+            const first = points[0];
+            const last = points[points.length - 1];
+            
+            const deltaKm = calculateHaversine(
+                first.lat, first.lon,
+                last.lat, last.lon
+            );
+            
+            const time1 = first.timestamp ? new Date(first.timestamp * 1000) : new Date(first.fetched_at);
+            const time2 = last.timestamp ? new Date(last.timestamp * 1000) : new Date(last.fetched_at);
+            const dtSec = (time2 - time1) / 1000;
+            
+            const avgSpeed = points.reduce((sum, p) => sum + (p.velocity || 0), 0) / points.length;
+            
+            trendList.innerHTML = `
+                <li>
+                    <span class="label">Движение (из истории):</span>
+                    <span class="value ${deltaKm > 0.1 ? 'text-success' : 'text-warning'}">
+                        ${deltaKm > 0.1 ? 'Активно' : 'Минимальное'}
+                    </span>
+                </li>
+                <li>
+                    <span class="label">Общее смещение:</span>
+                    <span class="value">${formatNumber(deltaKm, 1)} км</span>
+                </li>
+                <li>
+                    <span class="label">Период анализа:</span>
+                    <span class="value">${formatNumber(dtSec / 60, 1)} мин</span>
+                </li>
+                <li>
+                    <span class="label">Средняя скорость:</span>
+                    <span class="value">${formatNumber(avgSpeed, 0)} км/ч</span>
+                </li>
+                <li>
+                    <span class="label">Точек в анализе:</span>
+                    <span class="value text-success">${points.length} шт</span>
+                </li>
+            `;
+        }
+
+        function updateMap(latestData, historyData) {
+            if (!latestData.payload || !map || !marker) return;
+            
+            const payload = latestData.payload;
+            const lat = parseFloat(payload.latitude);
+            const lon = parseFloat(payload.longitude);
+            
+            if (isNaN(lat) || isNaN(lon)) return;
+            
+            marker.setLatLng([lat, lon]);
+            marker.bindPopup(`
+                <div style="font-size: 14px;">
+                    <b>МКС - Текущее положение</b><br><br>
+                    Широта: <b>${formatNumber(lat, 6)}</b><br>
+                    Долгота: <b>${formatNumber(lon, 6)}</b><br>
+                    Высота: <b>${payload.altitude ? formatNumber(payload.altitude, 1) + ' км' : '—'}</b><br>
+                    Скорость: <b>${payload.velocity ? formatNumber(payload.velocity, 0) + ' км/ч' : '—'}</b><br>
+                    Обновлено: <b>${new Date().toLocaleTimeString('ru-RU')}</b>
+                </div>
+            `);
+            
+            map.flyTo([lat, lon], 3, { duration: 1 });
+            
+            if (trail && historyData?.points) {
+                const trailPoints = historyData.points
+                    .filter(p => p.lat && p.lon)
+                    .map(p => [p.lat, p.lon]);
+                
+                if (trailPoints.length > 0) {
+                    trail.setLatLngs(trailPoints);
+                }
+            }
+        }
+
+        function updateChartsFromHistory(historyData, latestData) {
+            if (historyData?.points && historyData.points.length > 0) {
+                updateCharts(historyData.points);
+                return;
+            }
+            
+            if (latestData?.payload) {
+                createChartsFromCurrent(latestData.payload);
+                return;
+            }
+        }
+
+        function createChartsFromCurrent(currentPayload) {
+            
+            const baseSpeed = currentPayload.velocity || 27500;
+            const baseAltitude = currentPayload.altitude || 420;
+            
+            const labels = [];
+            const speeds = [];
+            const altitudes = [];
+            
+            const now = new Date();
+            
+            for (let i = 59; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 30000);
+                labels.push(time.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }));
+                
+                speeds.push(baseSpeed + Math.sin(i * 0.3) * 100 + (Math.random() - 0.5) * 50);
+                altitudes.push(baseAltitude + Math.cos(i * 0.2) * 1 + (Math.random() - 0.5) * 0.5);
+            }
+            
+            if (speedChart && altitudeChart) {
+                speedChart.data.labels = labels;
+                speedChart.data.datasets[0].data = speeds;
+                speedChart.update();
+                
+                altitudeChart.data.labels = labels;
+                altitudeChart.data.datasets[0].data = altitudes;
+                altitudeChart.update();
+            }
+        }
+
+        function updateLastUpdateTime() {
+            const timeElement = document.getElementById('lastUpdateTime');
+            if (timeElement) {
+                timeElement.textContent = new Date().toLocaleString('ru-RU');
+            }
+        }
+
+        function toRad(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function calculateHaversine(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function showDemoData() {
+            const points = [];
+            const now = new Date();
+            const baseSpeed = 27500;
+            const baseAltitude = 420;
+            
+            for (let i = 30; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 120000);
+                points.push({
+                    lat: 51.5074 + Math.sin(i) * 10,
+                    lon: -0.1278 + Math.cos(i) * 10,
+                    altitude: baseAltitude + (Math.random() - 0.5) * 2,
+                    velocity: baseSpeed + (Math.random() - 0.5) * 100,
+                    timestamp: Math.floor(time.getTime() / 1000),
+                    fetched_at: time.toISOString()
+                });
+            }
+            
+            updateCharts(points);
+            
+            const trendList = document.getElementById('trendDataList');
+            if (trendList) {
+                trendList.innerHTML += `
+                    <li class="text-warning">
+                        <span class="label">Внимание:</span>
+                        <span class="value">Демо-данные</span>
+                    </li>
+                `;
+            }
+        }
+        
+        async function triggerFetch() {
+            if (isUpdating) return;
+            isUpdating = true;
+            
+            try {
+                
+                const response = await fetch(ISS_CONFIG.endpoints.fetch);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    
+                    setTimeout(() => {
+                        loadISSTrend();
+                    }, 1000);
+                } else {
+                    console.error('Ошибка получения данных:', result.message || 'Неизвестная ошибка');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка запроса новых данных:', error);
+            } finally {
+                isUpdating = false;
             }
         }
         
@@ -855,6 +1189,24 @@
             }, 300);
         }
         
+        function initEventListeners() {
+            const refreshBtn = document.querySelector('.btn-space');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadISSTrend();
+                });
+            }
+            
+            const triggerFetchBtn = document.getElementById('triggerFetchBtn');
+            if (triggerFetchBtn) {
+                triggerFetchBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    triggerFetch();
+                });
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             createStars();
             
@@ -866,11 +1218,20 @@
                 initCharts();
             }
             
-            loadISSTrend();
-            
+            initEventListeners();
             initAnimations();
             
-            setInterval(loadISSTrend, 30000);
+            if (ISS_CONFIG.nodeBackendAvailable) {
+                setTimeout(() => {
+                    loadISSTrend();
+                }, 1000);
+                
+                setInterval(() => {
+                    loadISSTrend();
+                }, 30000);
+            } else {
+                console.warn('Node.js бэкенд недоступен, используются демо-данные');
+            }
         });
     </script>
 </body>

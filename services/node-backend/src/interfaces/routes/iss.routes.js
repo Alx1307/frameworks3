@@ -5,6 +5,7 @@ module.exports = (issHandler) => {
   router.get('/latest', issHandler.getLatestPosition);
   router.get('/trend', issHandler.getTrend);
   router.get('/fetch', issHandler.triggerFetch);
+  router.get('/history', issHandler.getHistory);
 
   return router;
 };

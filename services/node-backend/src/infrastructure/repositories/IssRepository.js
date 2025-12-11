@@ -72,6 +72,17 @@ class IssRepository {
     };
   }
 
+  async getHistoryPositions(limit = 50) {
+    const query = `
+        SELECT * FROM iss_fetch_log 
+        ORDER BY fetched_at DESC 
+        LIMIT $1
+    `;
+    
+    const result = await this.pool.query(query, [limit]);
+    return result.rows.map(row => this.fromDatabase(row));
+  }
+
   fromDatabase(row) {
     return {
       id: row.id,
