@@ -19,10 +19,8 @@ function createStars() {
 
 async function loadJWSTFeed(qs) {
     const track = document.getElementById('jwstTrack');
-    const info = document.getElementById('jwstInfo');
     
     track.innerHTML = '<div class="p-5 text-center"><div class="loading-pulse"></div><div class="text-info mt-2">Загрузка изображений JWST...</div></div>';
-    info.textContent = '';
     
     try {
         const url = '/api/jwst/feed?' + new URLSearchParams(qs).toString();
@@ -42,11 +40,8 @@ async function loadJWSTFeed(qs) {
                     <figcaption class="jwst-cap">${(item.caption || '').replaceAll('<', '&lt;').substring(0, 50)}${(item.caption || '').length > 50 ? '...' : ''}</figcaption>`;
                 track.appendChild(figure);
             });
-            
-            info.textContent = `Источник: ${data.source} · Показано ${data.items.length} изображений`;
         } else {
             track.innerHTML = '<div class="p-5 text-center text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Изображения не найдены</div>';
-            info.textContent = 'Нет данных для отображения';
         }
     } catch (error) {
         console.error('Ошибка загрузки JWST:', error);
@@ -58,8 +53,7 @@ function initJWSTPage() {
     createStars();
     
     const track = document.getElementById('jwstTrack');
-    const info = document.getElementById('jwstInfo');
-    const form = document.getElementById('jwstFilter');
+    const form = document.getElementById('jwstFilter');  // ← Только form, без info
     const srcSel = document.getElementById('srcSel');
     const sfxInp = document.getElementById('suffixInp');
     const progInp = document.getElementById('progInp');

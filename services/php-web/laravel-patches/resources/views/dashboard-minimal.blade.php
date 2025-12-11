@@ -223,7 +223,6 @@
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
-                            <div id="jwstInfo" class="small text-muted mt-3 text-center"></div>
                         </div>
                     </div>
                 </div>
