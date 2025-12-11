@@ -4,7 +4,7 @@ module.exports = (astronomyHandler) => {
   
     router.get('/events', astronomyHandler.getEvents);
     router.get('/config', astronomyHandler.getConfig);
-    router.get('/test', astronomyHandler.testApi); // Добавьте эту строку
+    router.get('/test', astronomyHandler.testApi);
   
     return router;
   };
