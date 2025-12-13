@@ -6,6 +6,7 @@ volumes:
   pgdata:
   appdata:
   csvdata:
+  exceldata:
   redisdata:
 
 services:
@@ -159,7 +160,7 @@ services:
       context: ./services/pascal-legacy
     container_name: pascal_legacy
     environment:
-      CSV_OUT_DIR: /data/csv
+      CSV_OUT_DIR: /data/csv_legacy
       GEN_PERIOD_SEC: ${PAS_LEGACY_PERIOD:-300}
       PGHOST: db
       PGPORT: 5432
@@ -170,6 +171,30 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - csvdata:/data/csv
+      - csvdata:/data/csv_legacy
     networks:
       - backend
+
+  telemetry_processor:
+    build:
+      context: ./services/telemetry-processor
+    container_name: telemetry_processor
+    environment:
+      CSV_OUT_DIR: /data/csv
+      EXCEL_OUT_DIR: /data/excel
+      GEN_PERIOD_SEC: ${TELEMETRY_PERIOD:-300}
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: monouser
+      PGPASSWORD: monopass
+      PGDATABASE: monolith
+      WAIT_FOR_DB: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - csvdata:/data/csv
+      - exceldata:/data/excel
+    networks:
+      - backend
+    restart: unless-stopped
