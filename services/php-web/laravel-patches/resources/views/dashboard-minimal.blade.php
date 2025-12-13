@@ -115,19 +115,19 @@
                                     <ul class="list-unstyled">
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            <strong>Запуск:</strong> 25 декабря 2021
+                                            <strong>Запуск: </strong> 25 декабря 2021
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            <strong>Орбита:</strong> Точка L₂ (1.5 млн км от Земли)
+                                            <strong>Орбита: </strong> Точка L₂ (1.5 млн км от Земли)
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            <strong>Масса:</strong> 6,500 кг
+                                            <strong>Масса: </strong> 6,500 кг
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-check-circle text-success me-2"></i>
-                                            <strong>Мощность:</strong> 2,000 ватт
+                                            <strong>Мощность: </strong> 2,000 ватт
                                         </li>
                                     </ul>
                                 </div>
@@ -136,19 +136,19 @@
                                     <ul class="list-unstyled">
                                         <li class="mb-2">
                                             <i class="fas fa-camera text-warning me-2"></i>
-                                            <strong>NIRCam</strong> - Ближняя инфракрасная камера
+                                            <strong>NIRCam </strong> - Ближняя инфракрасная камера
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-eye text-warning me-2"></i>
-                                            <strong>NIRSpec</strong> - Ближний инфракрасный спектрограф
+                                            <strong>NIRSpec </strong> - Ближний инфракрасный спектрограф
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-thermometer text-warning me-2"></i>
-                                            <strong>MIRI</strong> - Средний инфракрасный инструмент
+                                            <strong>MIRI </strong> - Средний инфракрасный инструмент
                                         </li>
                                         <li class="mb-2">
                                             <i class="fas fa-ruler text-warning me-2"></i>
-                                            <strong>NIRISS</strong> - Ближний инфракрасный имитатор щели
+                                            <strong>NIRISS </strong> - Ближний инфракрасный имитатор щели
                                         </li>
                                     </ul>
                                 </div>
