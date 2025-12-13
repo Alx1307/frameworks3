@@ -2,13 +2,22 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IssController;
+use App\Http\Controllers\OsdrController;
 
 Route::get('/', fn() => view('welcome'));
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
 Route::get('/dashboard-minimal', [\App\Http\Controllers\DashboardController::class, 'minimal']);
-Route::get('/osdr', [\App\Http\Controllers\OsdrController::class, 'index']);
-Route::get('/osdr-new', [\App\Http\Controllers\OsdrController::class, 'newIndex'])->name('osdr.new');
+
+Route::get('/osdr', [OsdrController::class, 'index']);
+Route::get('/osdr-new', [OsdrController::class, 'newIndex'])->name('osdr.new');
+
+Route::prefix('api/osdr')->group(function () {
+    Route::get('/list', [OsdrController::class, 'apiList'])->name('osdr.api.list');
+    Route::get('/summary', [OsdrController::class, 'apiSummary'])->name('osdr.api.summary');
+    Route::post('/refresh', [OsdrController::class, 'apiRefresh'])->name('osdr.api.refresh');
+    Route::get('/dataset/{datasetId}', [OsdrController::class, 'apiDataset'])->name('osdr.api.dataset');
+});
 
 Route::get('/astronomy', [\App\Http\Controllers\AstroController::class, 'index']);
 Route::get('/api/astronomy/events', [\App\Http\Controllers\AstroController::class, 'events']);
