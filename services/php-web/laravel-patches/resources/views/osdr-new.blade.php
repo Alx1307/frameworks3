@@ -95,12 +95,6 @@
                             полученным в ходе космических миссий и исследований. Здесь вы можете найти наборы данных 
                             по различным направлениям: биология в космосе, физика микрогравитации, материаловедение и другие.
                         </p>
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="items-count">
-                                <i class="fas fa-table me-1"></i>
-                                Найдено наборов: {{ count($items ?? []) }}
-                            </span>
-                        </div>
                     </div>
                     <div class="col-md-4 text-end">
                         <a href="https://osdr.nasa.gov" target="_blank" class="btn btn-osdr">
@@ -141,7 +135,6 @@
                                 <th>#</th>
                                 <th>title</th>
                                 <th>rest_url</th>
-                                <th>updated_at</th>
                                 <th>inserted_at</th>
                                 <th>raw</th>
                             </tr>
@@ -165,8 +158,15 @@
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td>{{ $row['updated_at'] ?? '—' }}</td>
-                                <td>{{ $row['inserted_at'] ?? '—' }}</td>
+                                <td>
+                                    @if(!empty($row['inserted_at']))
+                                        <span class="timestamp" title="{{ $row['inserted_at'] }}">
+                                            {{ \Carbon\Carbon::parse($row['inserted_at'])->format('Y-m-d H:i') }} UTC
+                                        </span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <button class="btn btn-outline-osdr btn-sm" 
                                             data-bs-toggle="collapse" 
@@ -176,13 +176,13 @@
                                 </td>
                             </tr>
                             <tr class="collapse" id="raw-{{ $row['id'] }}-{{ md5($row['dataset_id'] ?? (string)$row['id']) }}">
-                                <td colspan="6">
+                                <td colspan="5">
                                     <div class="json-block">
                                         <button class="json-toggle" type="button" 
                                                 data-bs-toggle="collapse" 
                                                 data-bs-target="#raw-{{ $row['id'] }}-{{ md5($row['dataset_id'] ?? (string)$row['id']) }}" 
                                                 aria-expanded="false">
-                                            <span>Полный JSON (нажмите чтобы скрыть)</span>
+                                            <span>Ссылка на полный JSON (нажмите чтобы скрыть)</span>
                                             <i class="fas fa-chevron-up"></i>
                                         </button>
                                         <pre>{{ json_encode($row['raw'] ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) }}</pre>
@@ -191,7 +191,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6">
+                                <td colspan="5">
                                     <div class="empty-state">
                                         <div class="empty-icon">
                                             <i class="fas fa-database"></i>

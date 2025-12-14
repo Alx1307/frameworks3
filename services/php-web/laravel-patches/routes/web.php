@@ -11,6 +11,7 @@ Route::get('/dashboard-minimal', [\App\Http\Controllers\DashboardController::cla
 
 Route::get('/osdr', [OsdrController::class, 'index']);
 Route::get('/osdr-new', [OsdrController::class, 'newIndex'])->name('osdr.new');
+Route::get('/api/osdr/proxy-fetch', [OsdrController::class, 'proxyFetch'])->name('osdr.api.proxy.fetch');
 
 Route::prefix('api/osdr')->group(function () {
     Route::get('/list', [OsdrController::class, 'apiList'])->name('osdr.api.list');

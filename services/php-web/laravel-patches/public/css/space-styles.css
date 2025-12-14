@@ -862,19 +862,6 @@ body {
     color: white;
 }
 
-.items-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(93, 63, 211, 0.2);
-    color: var(--neon-blue);
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border: 1px solid rgba(93, 63, 211, 0.3);
-}
-
 .osdr-pagination {
     display: flex;
     justify-content: center;
@@ -2047,12 +2034,26 @@ select.form-select-space {
     table-layout: fixed !important;
 }
 
-.osdr-table th:nth-child(1) { width: 60px; }
-.osdr-table th:nth-child(2) { width: 250px; }
-.osdr-table th:nth-child(3) { width: 120px; }
-.osdr-table th:nth-child(4) { width: 120px; }
-.osdr-table th:nth-child(5) { width: 250px; }
-.osdr-table th:nth-child(6) { width: 100px; }
+.osdr-table th:nth-child(1) { 
+    width: 100px; 
+    text-align: center !important; 
+}
+.osdr-table th:nth-child(2) { 
+    width: 150px; 
+    text-align: center !important; 
+}
+.osdr-table th:nth-child(3) { 
+    width: 120px; 
+    text-align: center !important; 
+}
+.osdr-table th:nth-child(4) { 
+    width: 250px; 
+    text-align: center !important; 
+}
+.osdr-table th:nth-child(5) { 
+    width: 150px; 
+    text-align: center !important; 
+}
 
 .osdr-table tbody td:nth-child(2) {
     white-space: normal;
@@ -2063,6 +2064,11 @@ select.form-select-space {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-height: 1.4;
+}
+
+.osdr-table tbody td {
+    text-align: center !important;
+    vertical-align: middle !important;
 }
 
 .info-panel-header {
@@ -2182,4 +2188,3 @@ select.form-select-space {
         gap: 10px;
     }
 }
-
