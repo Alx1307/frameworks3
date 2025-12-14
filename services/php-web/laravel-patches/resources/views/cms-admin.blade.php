@@ -72,6 +72,12 @@
                 </p>
             </div>
             
+            <div class="d-flex justify-content-end mb-4">
+                <a href="{{ route('cms.create') }}" class="btn btn-cms btn-cms-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Создать новый блок
+                </a>
+            </div>
+            
             <div class="row">
                 <div class="col-12">
                     <h3 class="section-title">
@@ -85,10 +91,10 @@
                             <div class="cms-card-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="cms-card-title">
-                                        <i class="fas fa-file-alt me-2"></i>{{ $block->title ?? 'Без названия' }}
+                                        <i class="fas fa-file-alt me-2"></i>{{ data_get($block, 'title', 'Без названия') }}
                                     </h4>
                                     <div class="cms-slug">
-                                        <i class="fas fa-hashtag me-1"></i>{{ $block->slug }}
+                                        <i class="fas fa-hashtag me-1"></i>{{ data_get($block, 'slug', '') }}
                                     </div>
                                 </div>
                             </div>
@@ -96,7 +102,8 @@
                             <div class="cms-content">
                                 <div class="cms-content-preview">
                                     @php
-                                        $preview = strip_tags($block->content);
+                                        $content = data_get($block, 'content', '');
+                                        $preview = strip_tags($content);
                                         $preview = strlen($preview) > 300 ? substr($preview, 0, 300) . '...' : $preview;
                                         echo htmlspecialchars($preview);
                                     @endphp
@@ -112,18 +119,26 @@
                                 <div>
                                     <small>
                                         <i class="far fa-clock me-1"></i>
-                                        Обновлен: {{ date('d.m.Y H:i', strtotime($block->updated_at)) }}
+                                        Обновлен: {{ date('d.m.Y H:i', strtotime(data_get($block, 'updated_at', now()))) }}
                                     </small>
                                 </div>
                             </div>
                             
                             <div class="cms-actions">
-                                <a href="/page/{{ $block->slug }}" class="btn btn-cms btn-cms-view" target="_blank">
-                                    <i class="fas fa-external-link-alt"></i>Просмотр страницы
+                                <a href="/page/{{ data_get($block, 'slug', '') }}" class="btn btn-cms btn-cms-view" target="_blank">
+                                    <i class="fas fa-external-link-alt me-2"></i>Просмотр страницы
                                 </a>
-                                <a href="#" class="btn btn-cms btn-cms-edit" onclick="alert('Редактирование временно недоступно')">
-                                    <i class="fas fa-edit"></i>Редактировать
+                                <a href="{{ route('cms.edit', data_get($block, 'id')) }}" class="btn btn-cms btn-cms-edit">
+                                    <i class="fas fa-edit me-2"></i>Редактировать
                                 </a>
+                                
+                                <form action="{{ route('cms.destroy', data_get($block, 'id')) }}" method="POST" class="d-inline" onsubmit="return confirm('Удалить этот блок?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-cms btn-cms-delete">
+                                        <i class="fas fa-trash me-2"></i>Удалить
+                                    </button>
+                                </form>
                             </div>
                         </div>
                         @endforeach
@@ -134,83 +149,11 @@
                             </div>
                             <h4>Нет активных блоков</h4>
                             <p>В системе CMS пока нет созданных контентных блоков.</p>
-                            <a href="#" class="btn btn-cms btn-cms-view mt-3" onclick="alert('Создание блока временно недоступно')">
-                                <i class="fas fa-plus-circle me-2"></i>Создать новый блок
+                            <a href="/cms-admin/create" class="btn btn-cms btn-cms-view mt-3">
+                                <i class="fas fa-plus-circle me-2"></i>Создать первый блок
                             </a>
                         </div>
                     @endif
-                </div>
-            </div>
-            
-            <div class="cms-card mt-5">
-                <div class="cms-card-header">
-                    <h4 class="cms-card-title">
-                        <i class="fas fa-tachometer-alt me-2"></i>CMS блок с dashboard
-                    </h4>
-                    <p class="mb-0" style="color: rgba(255, 255, 255, 0.7);">
-                        Этот блок отображается на главной панели управления (dashboard)
-                    </p>
-                </div>
-                
-                <div class="cms-content">
-                    <div class="cms-content-preview">
-                        @php
-                            try {
-                                $dashboardBlock = DB::selectOne("SELECT content FROM cms_blocks WHERE slug='dashboard_experiment' AND is_active = TRUE LIMIT 1");
-                                if ($dashboardBlock) {
-                                    echo $dashboardBlock->content;
-                                } else {
-                                    echo '<div class="text-muted">Блок "dashboard_experiment" не найден или неактивен</div>';
-                                }
-                            } catch (\Throwable $e) {
-                                echo '<div class="text-danger">Ошибка БД: ' . htmlspecialchars($e->getMessage()) . '</div>';
-                            }
-                        @endphp
-                    </div>
-                </div>
-                
-                <div class="cms-meta">
-                    <div>
-                        <span class="cms-slug">
-                            <i class="fas fa-hashtag me-1"></i>dashboard_experiment
-                        </span>
-                    </div>
-                    <div>
-                        <a href="/dashboard" class="text-decoration-none" style="color: var(--neon-blue);">
-                            <i class="fas fa-external-link-alt me-1"></i>На dashboard
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="info-panel mt-4">
-                <div class="info-panel-header">
-                    <i class="fas fa-database"></i>
-                    Техническая информация
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 style="color: var(--neon-blue); text-align: left;">Как использовать блоки:</h6>
-                        <ul style="color: rgba(255, 255, 255, 0.8); text-align: left;">
-                            <li>Блоки хранятся в таблице <code>cms_blocks</code></li>
-                            <li>Каждый блок имеет уникальный <code>slug</code></li>
-                            <li>Для вставки блока используйте маршрут <code>/page/{slug}</code></li>
-                            <li>Блоки отображаются "как есть" (HTML поддерживается)</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 style="color: var(--neon-blue); text-align: left;">Пример кода:</h6>
-                        <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; color: #90ee90; font-size: 0.9rem; text-align: left;">
-&lt;!-- Вставка CMS блока в Blade --&gt;
-@php
-    try {
-        $block = DB::selectOne("SELECT content FROM cms_blocks WHERE slug='имя_блока'");
-        echo $block ? $block->content : 'Блок не найден';
-    } catch (\Exception $e) {
-        echo '<div class="text-warning">Таблица cms_blocks не существует в базе данных</div>';
-    }
-@endphp </pre>
-                    </div>
                 </div>
             </div>
         </div>
@@ -220,10 +163,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">Astronomy Dashboard</div>
-                <p class="footer-tagline">
+                <div class="footer-tagline">
                     <i class="fas fa-rocket me-2"></i>
                     Исследуйте космос вместе с нами
-                </p>
+                </div>
                 <div class="footer-copyright">
                     &copy; 2025 Astronomy Dashboard. Используются данные NASA и открытые API.
                 </div>

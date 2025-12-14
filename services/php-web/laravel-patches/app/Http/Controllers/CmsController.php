@@ -2,80 +2,250 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class CmsController extends Controller 
 {
+    private $cacheTtl = 10;
+    
+    private function getApiBaseUrl(): string
+    {
+        $inDocker = file_exists('/.dockerenv') || getenv('IN_DOCKER');
+        
+        if ($inDocker) {
+            return 'http://node_backend:3001';
+        }
+        
+        return env('NODE_API_URL', 'http://localhost:8082');
+    }
+    
     public function page(string $slug) 
     {
-        $row = DB::selectOne(
-            "SELECT id, slug, title, content, is_active, created_at, updated_at 
-             FROM cms_blocks 
-             WHERE slug = ? AND is_active = TRUE", 
-            [$slug]
-        );
+        $apiUrl = $this->getApiBaseUrl();
         
-        if (!$row) {
+        $response = Http::timeout(5)->get("{$apiUrl}/api/cms/block/{$slug}");
+        
+        if (!$response->successful()) {
             abort(404, "CMS страница '$slug' не найдена");
         }
         
-        $safeHtml = $this->sanitizeHtml($row->content);
+        $data = $response->json();
+        
+        if (!$data['success'] || !isset($data['data'])) {
+            abort(404, "CMS страница '$slug' не найдена");
+        }
+        
+        $block = $data['data'];
         
         return response()->view('cms.page', [
-            'title' => $row->title, 
-            'html' => new HtmlString($safeHtml),
-            'page' => $row
+            'title' => $block['title'], 
+            'html' => new HtmlString($block['content']),
+            'page' => (object) $block
         ]);
     }
 
     public function admin()
     {
         try {
-            $blocks = DB::table('cms_blocks')
-                ->where('is_active', true)
-                ->orderBy('updated_at', 'desc')
-                ->select('id', 'slug', 'title', 'content', 'is_active', 'created_at', 'updated_at')
-                ->get();
+            $apiUrl = $this->getApiBaseUrl();
             
-            $dashboardBlock = DB::table('cms_blocks')
-                ->where('slug', 'dashboard_experiment')
-                ->where('is_active', true)
-                ->select('id', 'slug', 'title', 'content', 'created_at')
-                ->first();
+            $blocksResponse = Http::timeout(5)->get("{$apiUrl}/api/cms/blocks");
+            
+            if ($blocksResponse->successful()) {
+                $blocksData = $blocksResponse->json();
+                $blocks = $blocksData['success'] ? collect($blocksData['data']) : collect();
+            } else {
+                $blocks = collect();
+            }
+            
+            $dashboardResponse = Http::timeout(5)->get("{$apiUrl}/api/cms/block/dashboard_experiment");
+            
+            $dashboardBlock = null;
+            if ($dashboardResponse->successful()) {
+                $dashboardData = $dashboardResponse->json();
+                if ($dashboardData['success'] && isset($dashboardData['data'])) {
+                    $dashboardBlock = (object) $dashboardData['data'];
+                }
+            }
             
             return view('cms-admin', [
                 'blocks' => $blocks,
-                'dashboardBlock' => $dashboardBlock
+                'dashboardBlock' => $dashboardBlock,
+                'nodeApiUrl' => $apiUrl
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('CMS Admin error: ' . $e->getMessage(), [
+            Log::error('CMS Admin error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
             
             return view('cms-admin', [
                 'blocks' => collect(),
                 'dashboardBlock' => null,
-                'error' => 'Ошибка загрузки данных. Проверьте подключение к БД.'
+                'error' => 'Ошибка загрузки данных. Проверьте подключение к Node.js API.'
             ]);
         }
     }
     
-    private function sanitizeHtml(string $html): string
+    public function create()
     {
-        $dangerousTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'form'];
-        $dangerousAttributes = ['onclick', 'onload', 'onerror', 'onmouseover', 'href="javascript:'];
-        
-        foreach ($dangerousTags as $tag) {
-            $html = preg_replace("/<{$tag}[^>]*>.*?<\/{$tag}>/is", '', $html);
-            $html = preg_replace("/<{$tag}[^>]*>/is", '', $html);
+        return view('cms.edit', [
+            'block' => null,
+            'nodeApiUrl' => $this->getApiBaseUrl(),
+            'isCreate' => true
+        ]);
+    }
+    
+    public function store(Request $request)
+    {
+        try {
+            $apiUrl = $this->getApiBaseUrl();
+            
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'slug' => 'required|string|regex:/^[a-z0-9-_]+$/|unique:cms_blocks,slug',
+                'content' => 'required|string',
+                'is_active' => 'nullable|boolean'
+            ]);
+            
+            $data = [
+                'title' => $validated['title'],
+                'slug' => $validated['slug'],
+                'content' => $validated['content'],
+                'is_active' => $request->boolean('is_active', true)
+            ];
+            
+            $response = Http::timeout(10)
+                ->post("{$apiUrl}/api/cms/block", $data);
+            
+            if (!$response->successful()) {
+                $error = $response->json()['message'] ?? 'Ошибка создания блока';
+                return back()->withInput()->with('error', $error);
+            }
+            
+            $responseData = $response->json();
+            
+            if (!$responseData['success']) {
+                return back()->withInput()->with('error', $responseData['message'] ?? 'Ошибка создания блока');
+            }
+            
+            return redirect('/cms-admin')->with('success', 'Блок успешно создан!');
+            
+        } catch (\Exception $e) {
+            Log::error('CMS Store error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Ошибка создания: ' . $e->getMessage());
         }
-        
-        foreach ($dangerousAttributes as $attr) {
-            $html = preg_replace("/\s+{$attr}=['\"][^'\"]*['\"]/i", '', $html);
+    }
+
+    public function edit($id)
+    {
+        try {
+            $apiUrl = $this->getApiBaseUrl();
+            
+            $response = Http::timeout(5)->get("{$apiUrl}/api/cms/blocks");
+            
+            if (!$response->successful()) {
+                return redirect('/cms-admin')->with('error', 'Ошибка загрузки данных');
+            }
+            
+            $data = $response->json();
+            
+            if (!$data['success'] || !isset($data['data'])) {
+                return redirect('/cms-admin')->with('error', 'Блоки не найдены');
+            }
+            
+            $block = null;
+            foreach ($data['data'] as $item) {
+                if ($item['id'] == $id) {
+                    $block = $item;
+                    break;
+                }
+            }
+            
+            if (!$block) {
+                return redirect('/cms-admin')->with('error', 'Блок не найден');
+            }
+            
+            return view('cms.edit', [
+                'block' => $block,
+                'nodeApiUrl' => $apiUrl,
+                'isCreate' => false
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('CMS Edit error: ' . $e->getMessage());
+            return redirect('/cms-admin')->with('error', 'Ошибка загрузки блока: ' . $e->getMessage());
         }
-        
-        return $html;
+    }
+    
+    public function update(Request $request, $id)
+    {
+        try {
+            $apiUrl = $this->getApiBaseUrl();
+            
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'slug' => 'required|string|regex:/^[a-z0-9-_]+$/',
+                'content' => 'required|string',
+                'is_active' => 'nullable|boolean'
+            ]);
+            
+            $data = [
+                'title' => $validated['title'],
+                'slug' => $validated['slug'],
+                'content' => $validated['content'],
+                'is_active' => $request->boolean('is_active', true)
+            ];
+            
+            $response = Http::timeout(10)
+                ->put("{$apiUrl}/api/cms/block/{$id}", $data);
+            
+            if (!$response->successful()) {
+                $error = $response->json()['message'] ?? 'Ошибка обновления блока';
+                return back()->withInput()->with('error', $error);
+            }
+            
+            $responseData = $response->json();
+            
+            if (!$responseData['success']) {
+                return back()->withInput()->with('error', $responseData['message'] ?? 'Ошибка обновления блока');
+            }
+            
+            return redirect('/cms-admin')->with('success', 'Блок успешно обновлен!');
+            
+        } catch (\Exception $e) {
+            Log::error('CMS Update error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Ошибка обновления: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $apiUrl = $this->getApiBaseUrl();
+            
+            $response = Http::timeout(10)
+                ->delete("{$apiUrl}/api/cms/block/{$id}");
+            
+            if (!$response->successful()) {
+                $error = $response->json()['message'] ?? 'Ошибка удаления блока';
+                return redirect('/cms-admin')->with('error', $error);
+            }
+            
+            $responseData = $response->json();
+            
+            if (!$responseData['success']) {
+                return redirect('/cms-admin')->with('error', $responseData['message'] ?? 'Ошибка удаления блока');
+            }
+            
+            return redirect('/cms-admin')->with('success', 'Блок успешно удален!');
+            
+        } catch (\Exception $e) {
+            Log::error('CMS Delete error: ' . $e->getMessage());
+            return redirect('/cms-admin')->with('error', 'Ошибка удаления: ' . $e->getMessage());
+        }
     }
 }

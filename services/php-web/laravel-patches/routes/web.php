@@ -24,6 +24,12 @@ Route::get('/astronomy', [\App\Http\Controllers\AstroController::class, 'index']
 Route::get('/api/astronomy/events', [\App\Http\Controllers\AstroController::class, 'events']);
 
 Route::get('/cms-admin', [\App\Http\Controllers\CmsController::class, 'admin']);
+Route::get('/page/{slug}', [\App\Http\Controllers\CmsController::class, 'page']);
+Route::get('/cms/create', [\App\Http\Controllers\CmsController::class, 'create'])->name('cms.create');
+Route::get('/cms/edit/{id}', [\App\Http\Controllers\CmsController::class, 'edit'])->name('cms.edit');
+Route::post('/cms/store', [\App\Http\Controllers\CmsController::class, 'store'])->name('cms.store');
+Route::put('/cms/update/{id}', [\App\Http\Controllers\CmsController::class, 'update'])->name('cms.update');
+Route::delete('/cms/delete/{id}', [\App\Http\Controllers\CmsController::class, 'destroy'])->name('cms.destroy');
 
 Route::get('/api/iss/last',  [\App\Http\Controllers\ProxyController::class, 'last']);
 Route::get('/api/iss/trend', [\App\Http\Controllers\ProxyController::class, 'trend']);
@@ -38,5 +44,3 @@ Route::prefix('api/iss')->group(function () {
 
 Route::get('/api/jwst/feed', [\App\Http\Controllers\DashboardController::class, 'jwstFeed']);
 Route::get("/api/astro/events", [\App\Http\Controllers\AstroController::class, "events"]);
-
-Route::get('/page/{slug}', [\App\Http\Controllers\CmsController::class, 'page']);

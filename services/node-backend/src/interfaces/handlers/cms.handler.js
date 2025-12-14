@@ -42,6 +42,33 @@ class CmsHandler {
         next(error);
       }
     }
+
+    async getBlockById(req, res) {
+      try {
+        const { id } = req.params;
+        
+        const block = await this.cmsService.getBlockById(parseInt(id));
+        
+        if (!block) {
+          return res.status(404).json({
+            success: false,
+            message: 'Block not found'
+          });
+        }
+        
+        return res.json({
+          success: true,
+          data: block
+        });
+        
+      } catch (error) {
+        console.error('Error getting block by ID:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Internal server error'
+        });
+      }
+    }
   
     async createBlock(req, res, next) {
       try {

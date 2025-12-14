@@ -25,6 +25,15 @@ function createCmsRouter(cmsHandler) {
     cmsHandler.getBlockBySlug.bind(cmsHandler)
   );
 
+  router.get(
+    '/block-by-id/:id',
+    [
+      param('id').isInt().withMessage('Invalid block ID')
+    ],
+    validateRequest,
+    cmsHandler.getBlockById.bind(cmsHandler)
+  );
+
   router.post(
     '/block',
     [

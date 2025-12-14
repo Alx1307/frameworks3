@@ -2188,3 +2188,79 @@ select.form-select-space {
         gap: 10px;
     }
 }
+
+.btn-cms {
+    border: 1px solid rgba(93, 63, 211, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-cms-view {
+    background: rgba(93, 63, 211, 0.2);
+}
+
+.btn-cms-edit {
+    background: rgba(255, 193, 7, 0.2);
+    border-color: rgba(255, 193, 7, 0.4);
+}
+
+.btn-cms-delete {
+    background: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.4);
+}
+
+.btn-cms-primary {
+    background: rgba(93, 63, 211, 0.4);
+    border-color: var(--neon-blue);
+}
+
+.btn-cms-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border-color: rgba(108, 117, 125, 0.4);
+}
+
+.btn-cms:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 63, 211, 0.3);
+}
+
+.btn-cms-view:hover {
+    background: rgba(93, 63, 211, 0.3);
+}
+
+.btn-cms-edit:hover {
+    background: rgba(255, 193, 7, 0.3);
+}
+
+.btn-cms-delete:hover {
+    background: rgba(220, 53, 69, 0.3);
+}
+
+.cms-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(93, 63, 211, 0.3);
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.cms-input:focus {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: var(--neon-blue);
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(93, 63, 211, 0.25);
+}
+
+.cms-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-check-input:checked {
+    background-color: var(--neon-blue);
+    border-color: var(--neon-blue);
+}
