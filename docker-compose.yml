@@ -156,6 +156,7 @@ services:
       - "8080:80"
 
   pascal_legacy:
+    profiles: ["legacy"]
     build:
       context: ./services/pascal-legacy
     container_name: pascal_legacy

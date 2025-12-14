@@ -78,6 +78,64 @@ class CacheRepository {
       return {};
     }
   }
+
+  async delete(key) {
+    try {
+      return await this.redisClient.del(key);
+    } catch (error) {
+      console.error('Redis delete error:', error.message);
+      return 0;
+    }
+  }
+
+  async deleteAll(keys) {
+    try {
+      if (keys.length === 0) return 0;
+      return await this.redisClient.del(keys);
+    } catch (error) {
+      console.error('Redis deleteAll error:', error.message);
+      return 0;
+    }
+  }
+
+  async keys(pattern) {
+    try {
+      return await this.redisClient.keys(pattern);
+    } catch (error) {
+      console.error('Redis keys error:', error.message);
+      return [];
+    }
+  }
+
+  async getJson(key) {
+    try {
+      const data = await this.redisClient.get(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Redis getJson error:', error.message);
+      return null;
+    }
+  }
+
+  async setJson(key, value, ttlSeconds = 3600) {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await this.redisClient.set(key, jsonValue, { EX: ttlSeconds });
+      return true;
+    } catch (error) {
+      console.error('Redis setJson error:', error.message);
+      return false;
+    }
+  }
+
+  async ping() {
+    try {
+      return await this.redisClient.ping();
+    } catch (error) {
+      console.error('Redis ping error:', error.message);
+      return null;
+    }
+  }
 }
 
 module.exports = CacheRepository;

@@ -28,10 +28,12 @@ const AppState = {
     const IssRepository = require('./src/infrastructure/repositories/IssRepository');
     const OsdrRepository = require('./src/infrastructure/repositories/OsdrRepository');
     const CacheRepository = require('./src/infrastructure/repositories/CacheRepository');
+    const CmsRepository = require('./src/infrastructure/repositories/CmsRepository');
     
     const issRepo = new IssRepository(pool);
     const osdrRepo = new OsdrRepository(pool);
     const cacheRepo = new CacheRepository(redisClient, pool);
+    const cmsRepo = new CmsRepository(pool);
 
     const NasaClient = require('./src/infrastructure/clients/NasaClient');
     const IssClient = require('./src/infrastructure/clients/IssClient');
@@ -45,10 +47,12 @@ const AppState = {
     const IssService = require('./src/application/services/IssService');
     const OsdrService = require('./src/application/services/OsdrService');
     const AstronomyService = require('./src/application/services/AstronomyService');
+    const CmsService = require('./src/application/services/CmsService');
     
     const issService = new IssService(issRepo, issClient);
     const osdrService = new OsdrService(osdrRepo, nasaClient, cacheRepo);
     const astronomyService = new AstronomyService(cacheRepo);
+    const cmsService = new CmsService(cmsRepo, cacheRepo);
 
     const SchedulerService = require('./src/application/services/SchedulerService');
     const scheduler = new SchedulerService(issService, osdrService, pool);
@@ -60,6 +64,7 @@ const AppState = {
       issService,
       osdrService,
       astronomyService,
+      cmsService,
       cacheRepo,
       issRepo
     };
@@ -87,24 +92,28 @@ async function createApp() {
   const SpaceHandler = require('./src/interfaces/handlers/space.handler');
   const HealthHandler = require('./src/interfaces/handlers/health.handler');
   const AstronomyHandler = require('./src/interfaces/handlers/astronomy.handler');
+  const CmsHandler = require('./src/interfaces/handlers/cms.handler');
   
   const issHandler = new IssHandler(state.issService);
   const osdrHandler = new OsdrHandler(state.osdrService);
   const spaceHandler = new SpaceHandler(state.osdrService, state.cacheRepo, state.issRepo);
   const healthHandler = new HealthHandler(state.pool, state.redisClient);
   const astronomyHandler = new AstronomyHandler(state.astronomyService);
+  const cmsHandler = new CmsHandler(state.cmsService);
   
   const healthRouter = require('./src/interfaces/routes/health.routes')(healthHandler);
   const issRouter = require('./src/interfaces/routes/iss.routes')(issHandler);
   const osdrRouter = require('./src/interfaces/routes/osdr.routes')(osdrHandler);
   const spaceRouter = require('./src/interfaces/routes/space.routes')(spaceHandler);
   const astronomyRouter = require('./src/interfaces/routes/astronomy.routes')(astronomyHandler);
+  const cmsRouter = require('./src/interfaces/routes/cms.routes')(cmsHandler);
   
   app.use('/api/health', healthRouter);
   app.use('/api/iss', issRouter);
   app.use('/api/osdr', osdrRouter);
   app.use('/api/space', spaceRouter);
   app.use('/api/astronomy', astronomyRouter);
+  app.use('/api/cms', cmsRouter);
 
   app.use((req, res) => {
     res.status(404).json({
@@ -125,7 +134,6 @@ if (require.main === module) {
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
       console.log(`Node.js backend running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`Health check: http://localhost:${PORT}/api/health`);
       console.log(`ISS latest: http://localhost:${PORT}/api/iss/latest`);
       console.log(`OSDR list: http://localhost:${PORT}/api/osdr/list`);
