@@ -157,26 +157,6 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="dashboard-card h-100">
-                        <div class="card-header card-header-space">
-                            <i class="fas fa-rocket me-2"></i>Быстрые ссылки
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-3">
-                                <a href="https://webb.nasa.gov" target="_blank" class="btn btn-space">
-                                    <i class="fas fa-external-link-alt me-2"></i>
-                                    Официальный сайт NASA JWST
-                                </a>
-                                <button class="btn btn-outline-space" onclick="window.location.reload()">
-                                    <i class="fas fa-sync-alt me-2"></i>
-                                    Обновить данные
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="col-12">
                     <div class="dashboard-card">
                         <div class="card-header card-header-space d-flex justify-content-between align-items-center">

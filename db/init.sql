@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS cms_pages CASCADE;
 DROP TABLE IF EXISTS cms_blocks CASCADE;
+DROP TABLE IF EXISTS jwst_images CASCADE;
 
 CREATE TABLE cms_blocks (
     id BIGSERIAL PRIMARY KEY,
@@ -7,6 +8,20 @@ CREATE TABLE cms_blocks (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE jwst_images (
+    id BIGSERIAL PRIMARY KEY,
+    jwst_id VARCHAR(255) UNIQUE NOT NULL,
+    url TEXT NOT NULL,
+    thumbnail TEXT,
+    title VARCHAR(500),
+    caption TEXT,
+    instrument VARCHAR(50),
+    program_id VARCHAR(50),
+    suffix VARCHAR(50),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -46,6 +61,29 @@ CREATE TABLE space_cache (
 CREATE INDEX ix_space_cache_source ON space_cache(source, fetched_at DESC);
 CREATE INDEX ix_cms_blocks_slug_active ON cms_blocks(slug) WHERE is_active = TRUE;
 CREATE UNIQUE INDEX ux_osdr_dataset_id ON osdr_items(dataset_id) WHERE dataset_id IS NOT NULL;
+CREATE INDEX ix_jwst_images_instrument ON jwst_images(instrument);
+CREATE INDEX ix_jwst_images_program ON jwst_images(program_id);
+CREATE INDEX ix_jwst_images_suffix ON jwst_images(suffix);
+CREATE INDEX ix_jwst_images_created ON jwst_images(created_at DESC);
+CREATE INDEX ix_jwst_images_updated ON jwst_images(updated_at DESC);
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_cms_blocks_updated_at 
+    BEFORE UPDATE ON cms_blocks 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_jwst_images_updated_at 
+    BEFORE UPDATE ON jwst_images 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Seed with deliberately unsafe content for XSS practice
 INSERT INTO cms_blocks (slug, title, content, is_active) VALUES

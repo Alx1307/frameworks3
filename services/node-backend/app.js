@@ -29,30 +29,36 @@ const AppState = {
     const OsdrRepository = require('./src/infrastructure/repositories/OsdrRepository');
     const CacheRepository = require('./src/infrastructure/repositories/CacheRepository');
     const CmsRepository = require('./src/infrastructure/repositories/CmsRepository');
+    const JwstRepository = require('./src/infrastructure/repositories/JwstRepository'); 
     
     const issRepo = new IssRepository(pool);
     const osdrRepo = new OsdrRepository(pool);
     const cacheRepo = new CacheRepository(redisClient, pool);
     const cmsRepo = new CmsRepository(pool);
+    const jwstRepo = new JwstRepository(pool);
 
     const NasaClient = require('./src/infrastructure/clients/NasaClient');
     const IssClient = require('./src/infrastructure/clients/IssClient');
+    const JwstClient = require('./src/infrastructure/clients/JwstClient');
     
     const nasaClient = new NasaClient(
       process.env.NASA_API_URL || 'https://visualization.osdr.nasa.gov/biodata/api/v2/datasets/',
       process.env.NASA_API_KEY
     );
     const issClient = new IssClient(process.env.WHERE_ISS_URL || 'https://api.wheretheiss.at/v1/satellites/25544');
+    const jwstClient = new JwstClient();
 
     const IssService = require('./src/application/services/IssService');
     const OsdrService = require('./src/application/services/OsdrService');
     const AstronomyService = require('./src/application/services/AstronomyService');
     const CmsService = require('./src/application/services/CmsService');
+    const JwstService = require('./src/application/services/JwstService');
     
     const issService = new IssService(issRepo, issClient);
     const osdrService = new OsdrService(osdrRepo, nasaClient, cacheRepo);
     const astronomyService = new AstronomyService(cacheRepo);
     const cmsService = new CmsService(cmsRepo, cacheRepo);
+    const jwstService = new JwstService(jwstRepo, jwstClient, cacheRepo);
 
     const SchedulerService = require('./src/application/services/SchedulerService');
     const scheduler = new SchedulerService(issService, osdrService, pool);
@@ -65,8 +71,10 @@ const AppState = {
       osdrService,
       astronomyService,
       cmsService,
+      jwstService,
       cacheRepo,
-      issRepo
+      issRepo,
+      jwstRepo
     };
   }
 };
@@ -93,6 +101,7 @@ async function createApp() {
   const HealthHandler = require('./src/interfaces/handlers/health.handler');
   const AstronomyHandler = require('./src/interfaces/handlers/astronomy.handler');
   const CmsHandler = require('./src/interfaces/handlers/cms.handler');
+  const JwstHandler = require('./src/interfaces/handlers/jwst.handler');
   
   const issHandler = new IssHandler(state.issService);
   const osdrHandler = new OsdrHandler(state.osdrService);
@@ -100,6 +109,7 @@ async function createApp() {
   const healthHandler = new HealthHandler(state.pool, state.redisClient);
   const astronomyHandler = new AstronomyHandler(state.astronomyService);
   const cmsHandler = new CmsHandler(state.cmsService);
+  const jwstHandler = new JwstHandler(state.jwstService);
   
   const healthRouter = require('./src/interfaces/routes/health.routes')(healthHandler);
   const issRouter = require('./src/interfaces/routes/iss.routes')(issHandler);
@@ -107,6 +117,7 @@ async function createApp() {
   const spaceRouter = require('./src/interfaces/routes/space.routes')(spaceHandler);
   const astronomyRouter = require('./src/interfaces/routes/astronomy.routes')(astronomyHandler);
   const cmsRouter = require('./src/interfaces/routes/cms.routes')(cmsHandler);
+  const jwstRouter = require('./src/interfaces/routes/jwst.routes')(jwstHandler);
   
   app.use('/api/health', healthRouter);
   app.use('/api/iss', issRouter);
@@ -114,6 +125,7 @@ async function createApp() {
   app.use('/api/space', spaceRouter);
   app.use('/api/astronomy', astronomyRouter);
   app.use('/api/cms', cmsRouter);
+  app.use('/api/jwst', jwstRouter);
 
   app.use((req, res) => {
     res.status(404).json({
