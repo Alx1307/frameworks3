@@ -44,6 +44,9 @@
                         <a class="nav-link nav-link-space active" href="/iss-new">
                             <i class="fas fa-satellite me-2"></i>МКС
                         </a>
+                        <a class="nav-link nav-link-space" href="/telemetry">
+                            <i class="fas fa-chart-line me-2"></i>Телеметрия
+                        </a>
                     </div>
                 </nav>
             </div>

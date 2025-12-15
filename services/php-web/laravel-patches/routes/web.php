@@ -44,3 +44,8 @@ Route::prefix('api/iss')->group(function () {
 
 Route::get('/api/jwst/feed', [\App\Http\Controllers\DashboardController::class, 'jwstFeed']);
 Route::get("/api/astro/events", [\App\Http\Controllers\AstroController::class, "events"]);
+
+Route::get('/telemetry', [\App\Http\Controllers\TelemetryController::class, 'index'])->name('telemetry');
+Route::get('/api/telemetry/data', [\App\Http\Controllers\TelemetryController::class, 'apiData'])->name('telemetry.api.data');
+Route::get('/api/telemetry/stats', [\App\Http\Controllers\TelemetryController::class, 'apiStats'])->name('telemetry.api.stats');
+Route::get('/api/telemetry/realtime', [\App\Http\Controllers\TelemetryController::class, 'apiRealtime'])->name('telemetry.api.realtime');
