@@ -44,9 +44,6 @@
                         <a class="nav-link nav-link-space active" href="/iss-new">
                             <i class="fas fa-satellite me-2"></i>МКС
                         </a>
-                        <a class="nav-link nav-link-space" href="/telemetry">
-                            <i class="fas fa-chart-line me-2"></i>Телеметрия
-                        </a>
                     </div>
                 </nav>
             </div>
@@ -84,7 +81,7 @@
                     <div class="col-md-3">
                         <label class="form-label text-light">Период (дней)</label>
                         <input type="number" min="1" max="30" class="form-control form-control-astro" 
-                               name="days" value="7" placeholder="7">
+                               name="days" value="3" placeholder="3">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button class="btn btn-astro w-100" type="submit">

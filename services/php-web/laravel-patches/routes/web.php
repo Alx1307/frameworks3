@@ -10,7 +10,7 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::get('/dashboard-minimal', [\App\Http\Controllers\DashboardController::class, 'minimal']);
 
 Route::get('/osdr', [OsdrController::class, 'index']);
-Route::get('/osdr-new', [OsdrController::class, 'newIndex'])->name('osdr.new');
+Route::get('/osdr-new', [OsdrController::class, 'index'])->name('osdr.new');
 Route::get('/api/osdr/proxy-fetch', [OsdrController::class, 'proxyFetch'])->name('osdr.api.proxy.fetch');
 
 Route::prefix('api/osdr')->group(function () {

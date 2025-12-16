@@ -26,7 +26,7 @@
                 
                 <nav class="navbar navbar-expand-lg p-0">
                     <div class="navbar-nav">
-                        <a class="nav-link nav-link-space" href="/">
+                        <a class="nav-link nav-link-space active" href="/">
                             <i class="fas fa-home me-2"></i>Главная
                         </a>
                         <a class="nav-link nav-link-space" href="/astronomy">
@@ -43,9 +43,6 @@
                         </a>
                         <a class="nav-link nav-link-space" href="/iss-new">
                             <i class="fas fa-satellite me-2"></i>МКС
-                        </a>
-                        <a class="nav-link nav-link-space" href="/telemetry">
-                            <i class="fas fa-chart-line me-2"></i>Телеметрия
                         </a>
                     </div>
                 </nav>
@@ -65,9 +62,15 @@
                     Погрузитесь в мир космических данных и исследований.
                 </p>
                 
-                <a href="/dashboard" class="dashboard-btn">
-                    <i class="fas fa-rocket me-2"></i>Посмотреть исходный сайт
-                </a>
+                <div class="hero-buttons">
+                    <a href="/dashboard" class="dashboard-btn">
+                        <i class="fas fa-rocket me-2"></i>Посмотреть исходный сайт
+                    </a>
+                    
+                    <a href="/telemetry" class="dashboard-btn">
+                        <i class="fas fa-chart-line me-2"></i>Просмотр телеметрии
+                    </a>
+                </div>
             </section>
             
             <div class="feature-grid">
